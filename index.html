@@ -8,267 +8,268 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="profil.png">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  :root {
-    --bg: #1a1a1c;
-    --toolbar: #222224;
-    --symboles: #161618;
-    --editeur: #ffffff;
-    --numeros: #ebebeb;
-    --statut: #dcdcdc;
-    --btn: #46464a;
-    --btn-sauver: #2d7a45;
-    --btn-symbole: #2d4a7a;
-    --sugg-cle: #1e4fa0;
-    --sugg-var: #1e6b35;
-    --sugg-template: #8a2a10;
-    --texte-btn: #f0f0f0;
-    --zoom: 1;
-  }
+:root { --zoom: 1; }
 
-  html, body {
-    height: 100%;
-    overflow: hidden;
-    font-size: calc(14px * var(--zoom));
-  }
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #1a1a1c;
+}
 
-  body {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg);
-    height: 100vh;
-  }
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-  /* ── TOOLBAR ── */
-  #toolbar {
-    display: flex;
-    align-items: center;
-    background: var(--toolbar);
-    padding: 6px 8px;
-    gap: 6px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-  }
+/* ── TOOLBAR ── */
+#toolbar {
+  display: flex;
+  align-items: center;
+  background: #222224;
+  padding: 6px 8px;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
 
-  .btn {
-    padding: calc(6px * var(--zoom)) calc(12px * var(--zoom));
-    border: none;
-    border-radius: 6px;
-    background: var(--btn);
-    color: var(--texte-btn);
-    font-size: calc(12px * var(--zoom));
-    font-weight: bold;
-    cursor: pointer;
-    transition: filter 0.1s, transform 0.1s;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
+.btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #46464a;
+  color: #f0f0f0;
+  font-size: calc(13px * var(--zoom));
+  font-weight: bold;
+  cursor: pointer;
+  transition: filter 0.1s, transform 0.1s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
 
-  .btn:active {
-    filter: brightness(1.4);
-    transform: scale(0.95);
-  }
+.btn:active { filter: brightness(1.5); transform: scale(0.95); }
+.btn-sauver { background: #2d7a45; }
 
-  .btn-sauver { background: var(--btn-sauver); }
+/* ── SUGGESTIONS ── */
+#sugg-scroll {
+  background: #202022;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  white-space: nowrap;
+  height: 0;
+  transition: height 0.15s;
+}
+#sugg-scroll.visible { height: 44px; }
+#sugg-inner {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px 8px;
+  height: 100%;
+  align-items: center;
+}
+.sugg-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: bold;
+  touch-action: manipulation;
+}
+.sugg-btn:active { filter: brightness(1.5); }
 
-  /* ── SUGGESTIONS ── */
-  #sugg-scroll {
-    background: #202022;
-    overflow-x: auto;
-    overflow-y: hidden;
-    flex-shrink: 0;
-    white-space: nowrap;
-    height: 0;
-    transition: height 0.15s;
-  }
+/* ── ZONE PRINCIPALE ── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
 
-  #sugg-scroll.visible { height: calc(44px * var(--zoom)); }
+/* ── PANNEAU SYMBOLES ── */
+#panneau-sym {
+  width: 0;
+  overflow: hidden;
+  background: #161618;
+  transition: width 0.2s ease;
+  flex-shrink: 0;
+}
+#panneau-sym.ouvert { width: 75px; }
+#sym-inner {
+  width: 75px;
+  overflow-y: auto;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sym-btn {
+  width: 100%;
+  padding: 8px 4px;
+  border: none;
+  border-radius: 5px;
+  background: #2d4a7a;
+  color: white;
+  font-size: calc(12px * var(--zoom));
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  touch-action: manipulation;
+}
+.sym-btn:active { filter: brightness(1.5); }
 
-  #sugg-inner {
-    display: inline-flex;
-    gap: 6px;
-    padding: 6px 8px;
-    height: 100%;
-    align-items: center;
-  }
+/* ── ZONE EDITION ── */
+#zone-edition {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
 
-  .sugg-btn {
-    padding: 4px 10px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: calc(12px * var(--zoom));
-    cursor: pointer;
-    white-space: nowrap;
-    font-weight: bold;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
+#numeros {
+  background: #ebebeb;
+  color: #888;
+  font-family: 'Courier New', monospace;
+  font-size: calc(14px * var(--zoom));
+  line-height: 1.6;
+  padding: 8px 6px;
+  text-align: right;
+  overflow: hidden;
+  user-select: none;
+  min-width: 45px;
+  white-space: pre;
+  flex-shrink: 0;
+}
 
-  .sugg-btn:active { filter: brightness(1.4); }
+/* Conteneur éditeur avec coloration */
+#editeur-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+}
 
-  /* ── ZONE PRINCIPALE ── */
-  #main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-  }
+/* Layer coloration — affiché derrière */
+#coloreur {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Courier New', monospace;
+  font-size: calc(14px * var(--zoom));
+  line-height: 1.6;
+  padding: 8px 10px;
+  white-space: pre;
+  overflow: auto;
+  word-wrap: normal;
+  pointer-events: none;
+  color: transparent;
+  background: transparent;
+  border: none;
+  tab-size: 4;
+  box-sizing: border-box;
+}
 
-  /* ── PANNEAU SYMBOLES LATÉRAL ── */
-  #panneau-sym {
-    width: 0;
-    overflow: hidden;
-    background: var(--symboles);
-    transition: width 0.2s ease;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-  }
+/* Textarea transparent par-dessus */
+#editeur {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Courier New', monospace;
+  font-size: calc(14px * var(--zoom));
+  line-height: 1.6;
+  padding: 8px 10px;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: auto;
+  tab-size: 4;
+  white-space: pre;
+  word-wrap: normal;
+  background: transparent;
+  color: #333;
+  caret-color: #222;
+  z-index: 2;
+  box-sizing: border-box;
+}
 
-  #panneau-sym.ouvert {
-    width: calc(80px * var(--zoom));
-  }
+/* Couleurs syntaxiques */
+.c-comment  { color: #FF8000; font-weight: bold; }
+.c-string   { color: #008000; }
+.c-kw1      { color: #CC5500; font-weight: bold; }
+.c-kw2      { color: #AA0060; font-weight: bold; font-style: italic; }
+.c-builtin  { color: #6600BB; }
+.c-func     { color: #007777; font-weight: bold; font-style: italic; }
+.c-type     { color: #0055CC; font-weight: bold; font-style: italic; }
+.c-bool     { color: #0055CC; }
+.c-op       { color: #555599; font-weight: bold; }
+.c-number   { color: #0055CC; }
 
-  #sym-inner {
-    width: calc(80px * var(--zoom));
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 6px 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
+/* ── STATUT ── */
+#statut {
+  background: #dcdcdc;
+  color: #444;
+  font-size: 11px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
 
-  .sym-btn {
-    width: 100%;
-    padding: calc(8px * var(--zoom)) 4px;
-    border: none;
-    border-radius: 5px;
-    background: var(--btn-symbole);
-    color: white;
-    font-size: calc(12px * var(--zoom));
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    flex-shrink: 0;
-  }
-
-  .sym-btn:active { filter: brightness(1.5); }
-
-  /* ── NUMÉROS + ÉDITEUR ── */
-  #zone-edition {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  #numeros {
-    background: var(--numeros);
-    color: #888;
-    font-family: monospace;
-    font-size: calc(14px * var(--zoom));
-    line-height: 1.5;
-    padding: 8px 6px;
-    text-align: right;
-    overflow: hidden;
-    user-select: none;
-    min-width: calc(40px * var(--zoom));
-    white-space: pre;
-  }
-
-  #editeur {
-    flex: 1;
-    background: var(--editeur);
-    color: #222;
-    font-family: monospace;
-    font-size: calc(14px * var(--zoom));
-    line-height: 1.5;
-    padding: 8px 10px;
-    border: none;
-    outline: none;
-    resize: none;
-    overflow: auto;
-    tab-size: 4;
-    white-space: pre;
-    overflow-wrap: normal;
-  }
-
-  /* ── STATUT ── */
-  #statut {
-    background: var(--statut);
-    color: #444;
-    font-size: calc(11px * var(--zoom));
-    padding: 3px 10px;
-    flex-shrink: 0;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  /* ── POPUP ── */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .overlay.visible { display: flex; }
-
-  .popup {
-    background: #252528;
-    border-radius: 12px;
-    padding: 20px;
-    width: 88%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .popup h3 { color: #eee; font-size: 16px; }
-
-  .popup label { color: #aaa; font-size: 13px; }
-
-  .popup input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background: #1a1a1c;
-    color: #eee;
-    font-size: 15px;
-  }
-
-  .popup-info {
-    color: #888;
-    font-size: 12px;
-  }
-
-  .popup-btn {
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .popup-btn-ok { background: #2d7a45; }
-  .popup-btn-annuler { background: #555; }
+/* ── POPUP ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.visible { display: flex; }
+.popup {
+  background: #252528;
+  border-radius: 12px;
+  padding: 20px;
+  width: 88%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.popup h3 { color: #eee; font-size: 16px; }
+.popup label { color: #aaa; font-size: 13px; }
+.popup input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #1a1a1c;
+  color: #eee;
+  font-size: 15px;
+}
+.popup-info { color: #888; font-size: 12px; }
+.popup-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.popup-btn-ok { background: #2d7a45; }
+.popup-btn-annuler { background: #555; }
 </style>
 </head>
 <body>
 
-<!-- TOOLBAR -->
 <div id="toolbar">
   <button class="btn" onclick="nouveau()">Nouveau</button>
   <button class="btn" onclick="ouvrirPopup('ouvrir')">Ouvrir</button>
@@ -280,35 +281,31 @@
   <button class="btn" onclick="toggleSymboles()">☰ Sym</button>
 </div>
 
-<!-- SUGGESTIONS -->
 <div id="sugg-scroll">
   <div id="sugg-inner"></div>
 </div>
 
-<!-- ZONE PRINCIPALE -->
 <div id="main">
-
-  <!-- PANNEAU SYMBOLES LATÉRAL -->
   <div id="panneau-sym">
     <div id="sym-inner"></div>
   </div>
 
-  <!-- NUMÉROS + ÉDITEUR -->
   <div id="zone-edition">
     <div id="numeros">1</div>
-    <textarea id="editeur" spellcheck="false" autocorrect="off"
-              autocapitalize="off" autocomplete="off"></textarea>
+    <div id="editeur-wrap">
+      <div id="coloreur"></div>
+      <textarea id="editeur" spellcheck="false"
+                autocorrect="off" autocapitalize="off"
+                autocomplete="off"></textarea>
+    </div>
   </div>
-
 </div>
 
-<!-- STATUT -->
 <div id="statut">sans_titre.je  |  Ln: 1, Col: 1</div>
 
-<!-- POPUP OUVRIR/SAUVER -->
 <div class="overlay" id="overlay-fichier">
   <div class="popup">
-    <h3 id="popup-titre">Ouvrir un fichier</h3>
+    <h3 id="popup-titre">Ouvrir</h3>
     <div class="popup-info" id="popup-info"></div>
     <label>Nom du fichier</label>
     <input type="text" id="popup-input" placeholder="mon_algorithme">
@@ -319,38 +316,104 @@
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-// SERVICE WORKER
-// ══════════════════════════════════════════════════
+// ── SERVICE WORKER ──
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 
-// ══════════════════════════════════════════════════
-// ÉTAT
-// ══════════════════════════════════════════════════
+// ── ÉTAT ──
 let titreFichier = 'sans_titre.je';
 let cheminFichier = null;
-let fontSize = 14;
 let zoomLevel = 1;
 let historique = [];
 let futur = [];
 let ignoreChange = false;
 let suggEvent = null;
 let panneauOuvert = false;
-let popupMode = '';
 
-const editeur = document.getElementById('editeur');
-const numeros = document.getElementById('numeros');
-const statut  = document.getElementById('statut');
+const editeur    = document.getElementById('editeur');
+const coloreur   = document.getElementById('coloreur');
+const numeros    = document.getElementById('numeros');
+const statut     = document.getElementById('statut');
 const suggScroll = document.getElementById('sugg-scroll');
 const suggInner  = document.getElementById('sugg-inner');
 const panneau    = document.getElementById('panneau-sym');
 const symInner   = document.getElementById('sym-inner');
 
-// ══════════════════════════════════════════════════
-// MOTS CLÉS ET AUTO-COMPLÉTION
-// ══════════════════════════════════════════════════
+// ── COLORATION SYNTAXIQUE ──
+const REGLES = [
+  { re: /(#[^\n]*)/g,                                    cls: 'c-comment' },
+  { re: /("(?:[^"\\]|\\.)*")/g,                          cls: 'c-string'  },
+  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,            cls: 'c-kw1'     },
+  { re: /\b(Variables?|Constantes?)\b/gi,                cls: 'c-type'    },
+  { re: /\b(Fin\s+Si|Fin\s+Pour|Fin\s+Tant\s+que|Fin\s+Cas|Si|Sinon|Alors|Cas|Vaut|Pour|Faire|Tant\s+que|Repeter|Répeter|Jusqu|Tableau)\b/gi, cls: 'c-kw2' },
+  { re: /\b(Ecrire|Lire|entiers?|réels?|reels?|booléens?|booleans?|caractères?|caracteres?|chaine\s+de\s+caractères?)\b/gi, cls: 'c-builtin' },
+  { re: /\b(Retourne)\b/gi,                              cls: 'c-func'    },
+  { re: /\b(Fonction|Procedure)\b/gi,                    cls: 'c-type'    },
+  { re: /\b(vrai|faux)\b/gi,                             cls: 'c-bool'    },
+  { re: /\b(mod|div|et|ou|non)\b/gi,                     cls: 'c-op'      },
+  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,        cls: 'c-op'      },
+  { re: /\b(\d+(?:\.\d+)?)\b/g,                          cls: 'c-number'  },
+];
+
+function escHtml(txt) {
+  return txt
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function colorier(txt) {
+  // On découpe en lignes pour ne pas mélanger les tokens inter-lignes
+  return txt.split('\n').map(ligne => {
+    // Protéger d'abord les strings et commentaires
+    let segments = [{ texte: ligne, colore: false }];
+
+    // Applique chaque règle en découpant les segments non colorés
+    for (const { re, cls } of REGLES) {
+      const nouveaux = [];
+      for (const seg of segments) {
+        if (seg.colore) { nouveaux.push(seg); continue; }
+        let dernierIdx = 0;
+        re.lastIndex = 0;
+        let m;
+        while ((m = re.exec(seg.texte)) !== null) {
+          if (m.index > dernierIdx) {
+            nouveaux.push({ texte: seg.texte.slice(dernierIdx, m.index), colore: false });
+          }
+          nouveaux.push({ texte: m[0], colore: true, cls });
+          dernierIdx = re.lastIndex;
+        }
+        if (dernierIdx < seg.texte.length) {
+          nouveaux.push({ texte: seg.texte.slice(dernierIdx), colore: false });
+        }
+      }
+      segments = nouveaux;
+    }
+
+    return segments.map(s => {
+      if (s.colore) {
+        return `<span class="${s.cls}">${escHtml(s.texte)}</span>`;
+      }
+      return escHtml(s.texte);
+    }).join('');
+  }).join('\n');
+}
+
+function majColoreur() {
+  coloreur.innerHTML = colorier(editeur.value) + '\n';
+  // Synchroniser le scroll
+  coloreur.scrollTop  = editeur.scrollTop;
+  coloreur.scrollLeft = editeur.scrollLeft;
+}
+
+editeur.addEventListener('scroll', () => {
+  coloreur.scrollTop  = editeur.scrollTop;
+  coloreur.scrollLeft = editeur.scrollLeft;
+  numeros.scrollTop   = editeur.scrollTop;
+});
+
+// ── MOTS CLÉS ──
 const MOTS_CLES = [
   'Algorithme','Debut','Début','Fin','Variable','Variables',
   'Constante','Constantes','Si','Sinon','Alors','Fin Si',
@@ -362,49 +425,46 @@ const MOTS_CLES = [
 ];
 
 const AUTO_COMPLETE = {
-  'ecrire':  { texte: 'Ecrire("")',                     offset: 2  },
-  'lire':    { texte: 'Lire()',                          offset: 1  },
-  'algo':    { texte: 'Algorithme \nDebut\n\nFin',       offset: 15 },
-  'si':      { texte: 'Si  Alors\n\nFin Si',             offset: 12 },
+  'ecrire':  { texte: 'Ecrire("")',                          offset: 2  },
+  'lire':    { texte: 'Lire()',                               offset: 1  },
+  'algo':    { texte: 'Algorithme \nDebut\n\nFin',            offset: 15 },
+  'si':      { texte: 'Si  Alors\n\nFin Si',                  offset: 12 },
   'pour':    { texte: "Pour  <- 1 jusqu'\nFaire\n\nFin Pour", offset: 32 },
-  'tantque': { texte: 'Tant que \nFaire\n\nFin Tant que', offset: 22 },
-  'fonc':    { texte: 'Fonction ():\n\nFin Fonction',    offset: 10 },
-  'proc':    { texte: 'Procedure ():\n\nFin Procedure',  offset: 12 },
+  'tantque': { texte: 'Tant que \nFaire\n\nFin Tant que',     offset: 22 },
+  'fonc':    { texte: 'Fonction ():\n\nFin Fonction',         offset: 10 },
+  'proc':    { texte: 'Procedure ():\n\nFin Procedure',       offset: 12 },
 };
 
 const PAIRES = { '(':')', '"':'"', '[':']' };
 
-// ══════════════════════════════════════════════════
-// SYMBOLES LATÉRAUX
-// ══════════════════════════════════════════════════
+// ── SYMBOLES ──
 const SYMBOLES = [
-  { label: '<-',   val: '<-',    paire: false },
-  { label: '<--',  val: '<--',   paire: false },
-  { label: '()',   val: '(',     paire: true  },
-  { label: '""',   val: '"',     paire: true  },
-  { label: '[]',   val: '[',     paire: true  },
-  { label: '<',    val: '<',     paire: false },
-  { label: '>',    val: '>',     paire: false },
-  { label: '<=',   val: '<=',    paire: false },
-  { label: '>=',   val: '>=',    paire: false },
-  { label: '==',   val: '==',    paire: false },
-  { label: '!=',   val: '!=',    paire: false },
-  { label: 'mod',  val: ' mod ', paire: false },
-  { label: 'div',  val: ' div ', paire: false },
-  { label: 'et',   val: ' et ',  paire: false },
-  { label: 'ou',   val: ' ou ',  paire: false },
-  { label: 'non',  val: 'non ',  paire: false },
-  { label: ':',    val: ':',     paire: false },
-  { label: ',',    val: ',',     paire: false },
-  { label: ';',    val: ';',     paire: false },
-  { label: 'TAB',  val: '\t',    paire: false },
-  { label: '+',    val: '+',     paire: false },
-  { label: '-',    val: '-',     paire: false },
-  { label: '*',    val: '*',     paire: false },
-  { label: '/',    val: '/',     paire: false },
+  { label:'<-',  val:'<-',    paire:false },
+  { label:'<--', val:'<--',   paire:false },
+  { label:'()',  val:'(',     paire:true  },
+  { label:'""',  val:'"',     paire:true  },
+  { label:'[]',  val:'[',     paire:true  },
+  { label:'<',   val:'<',     paire:false },
+  { label:'>',   val:'>',     paire:false },
+  { label:'<=',  val:'<=',    paire:false },
+  { label:'>=',  val:'>=',    paire:false },
+  { label:'==',  val:'==',    paire:false },
+  { label:'!=',  val:'!=',    paire:false },
+  { label:'mod', val:' mod ', paire:false },
+  { label:'div', val:' div ', paire:false },
+  { label:'et',  val:' et ',  paire:false },
+  { label:'ou',  val:' ou ',  paire:false },
+  { label:'non', val:'non ',  paire:false },
+  { label:':',   val:':',     paire:false },
+  { label:',',   val:',',     paire:false },
+  { label:';',   val:';',     paire:false },
+  { label:'TAB', val:'\t',    paire:false },
+  { label:'+',   val:'+',     paire:false },
+  { label:'-',   val:'-',     paire:false },
+  { label:'*',   val:'*',     paire:false },
+  { label:'/',   val:'/',     paire:false },
 ];
 
-// Construire le panneau symboles
 SYMBOLES.forEach(s => {
   const b = document.createElement('button');
   b.className = 'sym-btn';
@@ -413,18 +473,15 @@ SYMBOLES.forEach(s => {
   symInner.appendChild(b);
 });
 
-// ══════════════════════════════════════════════════
-// ZOOM GLOBAL
-// ══════════════════════════════════════════════════
+// ── ZOOM ──
 function zoom(dir) {
   zoomLevel = Math.min(Math.max(zoomLevel + dir * 0.15, 0.5), 3);
   document.documentElement.style.setProperty('--zoom', zoomLevel);
+  majColoreur();
 }
 
 // Pinch-to-zoom
-let touches = [];
-let distInit = null;
-
+let touches = [], distInit = null;
 document.addEventListener('touchstart', e => {
   touches = Array.from(e.touches);
   if (touches.length === 2) {
@@ -433,88 +490,59 @@ document.addEventListener('touchstart', e => {
     distInit = Math.sqrt(dx*dx + dy*dy);
   }
 }, { passive: true });
-
 document.addEventListener('touchmove', e => {
   if (e.touches.length === 2 && distInit) {
     const t = Array.from(e.touches);
     const dx = t[0].clientX - t[1].clientX;
     const dy = t[0].clientY - t[1].clientY;
     const dist = Math.sqrt(dx*dx + dy*dy);
-    const ratio = dist / distInit;
-    if (ratio > 1.08) { zoom(1); distInit = dist; }
-    else if (ratio < 0.92) { zoom(-1); distInit = dist; }
+    if (dist / distInit > 1.08) { zoom(1);  distInit = dist; }
+    else if (dist / distInit < 0.92) { zoom(-1); distInit = dist; }
   }
 }, { passive: true });
-
 document.addEventListener('touchend', e => {
   if (e.touches.length < 2) distInit = null;
 }, { passive: true });
 
-// ══════════════════════════════════════════════════
-// PANNEAU SYMBOLES
-// ══════════════════════════════════════════════════
+// ── PANNEAU ──
 function toggleSymboles() {
   panneauOuvert = !panneauOuvert;
   panneau.classList.toggle('ouvert', panneauOuvert);
 }
 
-// ══════════════════════════════════════════════════
-// INSERTION
-// ══════════════════════════════════════════════════
+// ── INSERTION ──
 function inserer(texte, estPaire) {
-  const start = editeur.selectionStart;
-  const end   = editeur.selectionEnd;
-  const txt   = editeur.value;
-
+  const s = editeur.selectionStart;
+  const e2 = editeur.selectionEnd;
+  const txt = editeur.value;
   let nouveau, curseur;
   if (estPaire && PAIRES[texte]) {
-    nouveau = txt.slice(0,start) + texte + PAIRES[texte] + txt.slice(end);
-    curseur = start + 1;
+    nouveau = txt.slice(0,s) + texte + PAIRES[texte] + txt.slice(e2);
+    curseur = s + 1;
   } else {
-    nouveau = txt.slice(0,start) + texte + txt.slice(end);
-    curseur = start + texte.length;
+    nouveau = txt.slice(0,s) + texte + txt.slice(e2);
+    curseur = s + texte.length;
   }
-
-  sauverHistorique();
+  sauverHist();
   editeur.value = nouveau;
   editeur.setSelectionRange(curseur, curseur);
   editeur.focus();
-  majNumeros();
-  majStatut();
-  majSuggestions();
+  majTout();
 }
 
-// ══════════════════════════════════════════════════
-// AUTO-FERMETURE AU CLAVIER
-// ══════════════════════════════════════════════════
+// ── AUTO-FERMETURE CLAVIER ──
 editeur.addEventListener('keydown', e => {
-  // Undo/Redo clavier
-  if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); return; }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); return; }
-
-  // Tab
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    inserer('\t', false);
-    return;
-  }
-
-  // Auto-fermeture des paires
-  if (PAIRES[e.key]) {
-    e.preventDefault();
-    inserer(e.key, true);
-    return;
-  }
+  if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undo(); return; }
+  if ((e.ctrlKey||e.metaKey) && e.key==='y') { e.preventDefault(); redo(); return; }
+  if (e.key === 'Tab') { e.preventDefault(); inserer('\t', false); return; }
+  if (PAIRES[e.key]) { e.preventDefault(); inserer(e.key, true); return; }
 });
 
-// ══════════════════════════════════════════════════
-// GESTION TEXTE
-// ══════════════════════════════════════════════════
+// ── GESTION TEXTE ──
 editeur.addEventListener('input', () => {
   if (ignoreChange) return;
-  sauverHistorique();
-  majNumeros();
-  majStatut();
+  sauverHist();
+  majTout();
   clearTimeout(suggEvent);
   suggEvent = setTimeout(majSuggestions, 250);
 });
@@ -522,7 +550,7 @@ editeur.addEventListener('input', () => {
 editeur.addEventListener('keyup', majStatut);
 editeur.addEventListener('click', majStatut);
 
-function sauverHistorique() {
+function sauverHist() {
   const txt = editeur.value;
   if (!historique.length || historique[historique.length-1] !== txt) {
     historique.push(txt);
@@ -531,36 +559,34 @@ function sauverHistorique() {
   }
 }
 
-function majNumeros() {
-  const n = (editeur.value.match(/\n/g) || []).length + 1;
-  numeros.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
-  // Synchroniser le scroll
-  numeros.scrollTop = editeur.scrollTop;
+function majTout() {
+  majNumeros();
+  majStatut();
+  majColoreur();
 }
 
-editeur.addEventListener('scroll', () => {
+function majNumeros() {
+  const n = (editeur.value.match(/\n/g)||[]).length + 1;
+  numeros.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
   numeros.scrollTop = editeur.scrollTop;
-});
+}
 
 function majStatut() {
   const pos = editeur.selectionStart;
   const avant = editeur.value.slice(0, pos);
-  const lignes = (avant.match(/\n/g) || []).length + 1;
+  const ln = (avant.match(/\n/g)||[]).length + 1;
   const col = avant.length - (avant.lastIndexOf('\n') + 1) + 1;
-  statut.textContent = `${titreFichier}  |  Ln: ${lignes}, Col: ${col}`;
+  statut.textContent = `${titreFichier}  |  Ln: ${ln}, Col: ${col}`;
 }
 
-// ══════════════════════════════════════════════════
-// UNDO / REDO
-// ══════════════════════════════════════════════════
+// ── UNDO/REDO ──
 function undo() {
   if (!historique.length) return;
   futur.push(editeur.value);
   ignoreChange = true;
   editeur.value = historique.pop();
   ignoreChange = false;
-  majNumeros();
-  majStatut();
+  majTout();
 }
 
 function redo() {
@@ -569,13 +595,10 @@ function redo() {
   ignoreChange = true;
   editeur.value = futur.pop();
   ignoreChange = false;
-  majNumeros();
-  majStatut();
+  majTout();
 }
 
-// ══════════════════════════════════════════════════
-// SUGGESTIONS
-// ══════════════════════════════════════════════════
+// ── SUGGESTIONS ──
 function majSuggestions() {
   const pos = editeur.selectionStart;
   const avant = editeur.value.slice(0, pos);
@@ -584,32 +607,27 @@ function majSuggestions() {
 
   suggInner.innerHTML = '';
   suggScroll.classList.remove('visible');
-
   if (prefixe.length < 2) return;
 
   const pl = prefixe.toLowerCase();
   const widgets = [];
 
-  // Template
   if (AUTO_COMPLETE[pl]) {
     const { texte, offset } = AUTO_COMPLETE[pl];
     const b = document.createElement('button');
     b.className = 'sugg-btn';
     b.style.background = '#8a2a10';
-    b.textContent = '>> ' + texte.replace(/\n/g,' ').slice(0,20);
+    b.textContent = '>> ' + texte.replace(/\n/g,' ').slice(0,22);
     b.addEventListener('click', () => completerTemplate(texte, offset));
     widgets.push(b);
   }
 
-  // Mots-clés
-  const cles = MOTS_CLES.filter(m =>
-    m.toLowerCase().startsWith(pl) && m.toLowerCase() !== pl
+  const cles = MOTS_CLES.filter(mk =>
+    mk.toLowerCase().startsWith(pl) && mk.toLowerCase() !== pl
   );
-
-  // Mots du fichier
-  const vus = new Set(cles.map(m => m.toLowerCase()));
-  const motRe = /[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*/g;
+  const vus = new Set(cles.map(mk => mk.toLowerCase()));
   const fichierMots = [];
+  const motRe = /[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*/g;
   let match;
   while ((match = motRe.exec(editeur.value)) !== null) {
     const mot = match[0];
@@ -624,18 +642,16 @@ function majSuggestions() {
   const tous = [...cles.slice(0,5), ...fichierMots.slice(0,3)];
   if (!tous.length && !widgets.length) return;
 
+  suggScroll.classList.add('visible');
   tous.slice(0,7).forEach(mot => {
-    const estCle = MOTS_CLES.includes(mot);
     const b = document.createElement('button');
     b.className = 'sugg-btn';
-    b.style.background = estCle ? '#1e4fa0' : '#1e6b35';
+    b.style.background = MOTS_CLES.includes(mot) ? '#1e4fa0' : '#1e6b35';
     b.textContent = mot;
     b.addEventListener('click', () => completer(mot));
     widgets.push(b);
   });
-
   widgets.forEach(w => suggInner.appendChild(w));
-  suggScroll.classList.add('visible');
 }
 
 function completer(mot) {
@@ -644,17 +660,15 @@ function completer(mot) {
   const m = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
   const prefixe = m ? m[0] : '';
   const debut = pos - prefixe.length;
-  const nouveau = editeur.value.slice(0,debut) + mot + editeur.value.slice(pos);
   ignoreChange = true;
-  editeur.value = nouveau;
+  editeur.value = editeur.value.slice(0,debut) + mot + editeur.value.slice(pos);
   ignoreChange = false;
   const nc = debut + mot.length;
   editeur.setSelectionRange(nc, nc);
   editeur.focus();
   suggInner.innerHTML = '';
   suggScroll.classList.remove('visible');
-  majNumeros();
-  majStatut();
+  majTout();
 }
 
 function completerTemplate(texte, offset) {
@@ -663,50 +677,38 @@ function completerTemplate(texte, offset) {
   const m = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
   const prefixe = m ? m[0] : '';
   const debut = pos - prefixe.length;
-  const nouveau = editeur.value.slice(0,debut) + texte + editeur.value.slice(pos);
   ignoreChange = true;
-  editeur.value = nouveau;
+  editeur.value = editeur.value.slice(0,debut) + texte + editeur.value.slice(pos);
   ignoreChange = false;
   const nc = debut + texte.length - offset;
   editeur.setSelectionRange(nc, nc);
   editeur.focus();
   suggInner.innerHTML = '';
   suggScroll.classList.remove('visible');
-  majNumeros();
-  majStatut();
+  majTout();
 }
 
-// ══════════════════════════════════════════════════
-// FICHIERS (localStorage)
-// ══════════════════════════════════════════════════
+// ── FICHIERS ──
 function nouveau() {
-  if (editeur.value && !confirm('Nouveau fichier ? Les modifications non sauvegardées seront perdues.')) return;
+  if (editeur.value && !confirm('Nouveau fichier ? Modifications perdues.')) return;
   editeur.value = '';
   titreFichier = 'sans_titre.je';
   cheminFichier = null;
-  historique = [];
-  futur = [];
-  majNumeros();
-  majStatut();
+  historique = []; futur = [];
+  majTout();
 }
 
 function enregistrer() {
-  if (!cheminFichier) {
-    ouvrirPopup('sauver');
-  } else {
-    sauverFichier(cheminFichier);
-  }
+  if (!cheminFichier) ouvrirPopup('sauver');
+  else sauverFichier(cheminFichier);
 }
 
 function sauverFichier(nom) {
   if (!nom.endsWith('.je')) nom += '.je';
   localStorage.setItem('jealgo_' + nom, editeur.value);
-  localStorage.setItem('jealgo_liste',
-    JSON.stringify([...new Set([
-      ...(JSON.parse(localStorage.getItem('jealgo_liste') || '[]')),
-      nom
-    ])])
-  );
+  const liste = JSON.parse(localStorage.getItem('jealgo_liste') || '[]');
+  if (!liste.includes(nom)) liste.push(nom);
+  localStorage.setItem('jealgo_liste', JSON.stringify(liste));
   titreFichier = nom;
   cheminFichier = nom;
   statut.textContent = 'Enregistré : ' + nom;
@@ -715,24 +717,16 @@ function sauverFichier(nom) {
 function ouvrirFichier(nom) {
   if (!nom.endsWith('.je')) nom += '.je';
   const contenu = localStorage.getItem('jealgo_' + nom);
-  if (contenu === null) {
-    alert('Fichier introuvable : ' + nom);
-    return;
-  }
+  if (contenu === null) { alert('Introuvable : ' + nom); return; }
   editeur.value = contenu;
   titreFichier = nom;
   cheminFichier = nom;
-  historique = [];
-  futur = [];
-  majNumeros();
-  majStatut();
+  historique = []; futur = [];
+  majTout();
 }
 
-// ══════════════════════════════════════════════════
-// POPUP
-// ══════════════════════════════════════════════════
+// ── POPUP ──
 function ouvrirPopup(mode) {
-  popupMode = mode;
   const overlay = document.getElementById('overlay-fichier');
   const titre   = document.getElementById('popup-titre');
   const info    = document.getElementById('popup-info');
@@ -741,28 +735,18 @@ function ouvrirPopup(mode) {
 
   if (mode === 'sauver') {
     titre.textContent = 'Enregistrer sous';
-    info.textContent  = 'Les fichiers sont sauvegardés dans le navigateur';
+    info.textContent  = 'Sauvegardé dans le navigateur';
     input.placeholder = 'mon_algorithme';
     ok.textContent    = 'Enregistrer';
-    ok.onclick = () => {
-      const nom = input.value.trim() || 'sans_titre';
-      sauverFichier(nom);
-      fermerPopup();
-    };
+    ok.onclick = () => { sauverFichier(input.value.trim()||'sans_titre'); fermerPopup(); };
   } else {
-    titre.textContent = 'Ouvrir un fichier';
-    const liste = JSON.parse(localStorage.getItem('jealgo_liste') || '[]');
-    info.textContent = liste.length
-      ? 'Fichiers : ' + liste.join(', ')
-      : 'Aucun fichier sauvegardé';
+    titre.textContent = 'Ouvrir';
+    const liste = JSON.parse(localStorage.getItem('jealgo_liste')||'[]');
+    info.textContent = liste.length ? 'Fichiers : ' + liste.join(', ') : 'Aucun fichier';
     input.placeholder = 'mon_algorithme.je';
     ok.textContent = 'Ouvrir';
-    ok.onclick = () => {
-      ouvrirFichier(input.value.trim());
-      fermerPopup();
-    };
+    ok.onclick = () => { ouvrirFichier(input.value.trim()); fermerPopup(); };
   }
-
   input.value = '';
   overlay.classList.add('visible');
   setTimeout(() => input.focus(), 100);
@@ -776,16 +760,12 @@ document.getElementById('overlay-fichier').addEventListener('click', e => {
   if (e.target === e.currentTarget) fermerPopup();
 });
 
-// Entrée dans le popup
 document.getElementById('popup-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('popup-ok').click();
 });
 
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
-majNumeros();
-majStatut();
+// ── INIT ──
+majTout();
 </script>
 </body>
 </html>
