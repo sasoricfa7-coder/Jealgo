@@ -1,0 +1,22 @@
+{
+  "name": "JeAlgo",
+  "short_name": "JeAlgo",
+  "description": "Éditeur d'algorithmes en français",
+  "start_url": "/jealgo/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "profil.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "profil.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
