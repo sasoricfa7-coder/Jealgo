@@ -13,6 +13,7 @@
 html, body { height: 100%; overflow: hidden; background: #1a1a1c; }
 body { display: flex; flex-direction: column; height: 100vh; }
 
+/* ── TOOLBAR ── */
 #toolbar {
   display: flex;
   align-items: center;
@@ -37,11 +38,12 @@ body { display: flex; flex-direction: column; height: 100vh; }
   transition: filter 0.1s, transform 0.1s;
 }
 .btn:active { filter: brightness(1.5); transform: scale(0.95); }
-.btn-sauver { background: #2d7a45; }
 .btn-import { background: #1a5a8a; }
 .btn-export { background: #6a3a8a; }
 .btn-tab    { background: #3a3a6a; }
+.btn-actif  { background: #2d7a45 !important; }
 
+/* ── SUGGESTIONS ── */
 #sugg-scroll {
   background: #202022;
   overflow-x: auto;
@@ -80,40 +82,94 @@ body { display: flex; flex-direction: column; height: 100vh; }
   flex-shrink: 0;
 }
 
+/* ── ZONE PRINCIPALE ── */
 #main { display: flex; flex: 1; overflow: hidden; }
 
-#panneau-sym {
+/* ── PANNEAU FICHIERS (GAUCHE) ── */
+#panneau-fich {
   width: 0;
   overflow: hidden;
-  background: #161618;
+  background: #1a1a1e;
   transition: width 0.2s ease;
   flex-shrink: 0;
-}
-#panneau-sym.ouvert { width: 72px; }
-#sym-inner {
-  width: 72px;
-  overflow-y: auto;
-  padding: 5px 3px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  border-right: 1px solid #333;
 }
-.sym-btn {
-  width: 100%;
-  padding: 8px 2px;
-  border: none;
-  border-radius: 5px;
-  background: #2d4a7a;
-  color: #fff;
-  font-size: calc(12px * var(--zoom));
+#panneau-fich.ouvert { width: 200px; }
+
+#fich-header {
+  padding: 10px 8px;
+  color: #aaa;
+  font-size: 11px;
   font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+#fich-liste {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.fich-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  margin: 2px 4px;
+  gap: 6px;
+  transition: background 0.1s;
+}
+.fich-item:hover { background: #2a2a2e; }
+.fich-item.actif { background: #1e3a2a; border-left: 3px solid #2d7a45; }
+
+.fich-nom {
+  flex: 1;
+  color: #ccc;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fich-item.actif .fich-nom { color: #5dba7d; font-weight: bold; }
+
+.fich-sup {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.fich-sup:hover { color: #e05555; background: #2a1a1a; }
+
+#fich-nouveau {
+  margin: 6px 8px;
+  padding: 8px;
+  background: #252528;
+  border: 1px dashed #444;
+  border-radius: 6px;
+  color: #888;
+  font-size: 12px;
   cursor: pointer;
   text-align: center;
-  touch-action: manipulation;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
-.sym-btn:active { filter: brightness(1.5); }
+#fich-nouveau:hover { background: #2a2a2e; color: #aaa; }
 
+/* ── ZONE EDITION ── */
 #zone-edition { display: flex; flex: 1; overflow: hidden; }
+
 #numeros {
   background: #e8e8e8;
   color: #999;
@@ -128,6 +184,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
   white-space: pre;
   flex-shrink: 0;
 }
+
 #editeur-wrap {
   flex: 1;
   position: relative;
@@ -173,6 +230,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
   word-wrap: normal;
 }
 
+/* ── COULEURS ── */
 .c-comment { color: #b35a00; font-style: italic; }
 .c-string  { color: #1a7a1a; font-weight: bold; }
 .c-kw1     { color: #cc4400; font-weight: bold; }
@@ -185,6 +243,40 @@ body { display: flex; flex-direction: column; height: 100vh; }
 .c-number  { color: #0077cc; }
 .c-default { color: #222222; }
 
+/* ── PANNEAU SYMBOLES (DROITE) ── */
+#panneau-sym {
+  width: 0;
+  overflow: hidden;
+  background: #161618;
+  transition: width 0.2s ease;
+  flex-shrink: 0;
+  border-left: 1px solid #333;
+}
+#panneau-sym.ouvert { width: 72px; }
+#sym-inner {
+  width: 72px;
+  overflow-y: auto;
+  padding: 5px 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sym-btn {
+  width: 100%;
+  padding: 8px 2px;
+  border: none;
+  border-radius: 5px;
+  background: #2d4a7a;
+  color: #fff;
+  font-size: calc(12px * var(--zoom));
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  touch-action: manipulation;
+}
+.sym-btn:active { filter: brightness(1.5); }
+
+/* ── STATUT ── */
 #statut {
   background: #d8d8d8;
   color: #444;
@@ -197,6 +289,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
 
 #import-input { display: none; }
 
+/* ── POPUP ── */
 .overlay {
   display: none;
   position: fixed;
@@ -228,7 +321,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
   color: #eee;
   font-size: 15px;
 }
-.popup-info { color: #aaa; font-size: 12px; line-height: 1.6; white-space: pre-line; }
+.popup-info { color: #aaa; font-size: 12px; line-height: 1.6; }
 .popup-btn {
   padding: 12px;
   border: none;
@@ -246,10 +339,9 @@ body { display: flex; flex-direction: column; height: 100vh; }
 
 <input type="file" id="import-input" accept=".je,.txt,.md">
 
+<!-- TOOLBAR -->
 <div id="toolbar">
-  <button class="btn" onclick="nouveau()">Nouveau</button>
-  <button class="btn" onclick="ouvrirPopup('ouvrir')">Ouvrir</button>
-  <button class="btn btn-sauver" onclick="enregistrer()">Sauver</button>
+  <button class="btn" id="btn-fich" onclick="toggleFichiers()">≡ Fich</button>
   <button class="btn btn-import" onclick="importerFichier()">Importer</button>
   <button class="btn btn-export" onclick="exporterFichier()">Exporter</button>
   <button class="btn" onclick="undo()">Undo</button>
@@ -257,15 +349,25 @@ body { display: flex; flex-direction: column; height: 100vh; }
   <button class="btn btn-tab" onclick="inserer('\t',false)">TAB</button>
   <button class="btn" onclick="zoom(1)">A+</button>
   <button class="btn" onclick="zoom(-1)">A-</button>
-  <button class="btn" onclick="toggleSymboles()">☰ Sym</button>
+  <button class="btn" id="btn-sym" onclick="toggleSymboles()">Sym ≡</button>
 </div>
 
+<!-- SUGGESTIONS -->
 <div id="sugg-scroll">
   <div id="sugg-inner"></div>
 </div>
 
+<!-- MAIN -->
 <div id="main">
-  <div id="panneau-sym"><div id="sym-inner"></div></div>
+
+  <!-- PANNEAU FICHIERS GAUCHE -->
+  <div id="panneau-fich">
+    <div id="fich-header">📁 Fichiers</div>
+    <div id="fich-liste"></div>
+    <div id="fich-nouveau" onclick="nouveauFichier()">+ Nouveau fichier</div>
+  </div>
+
+  <!-- ZONE EDITION -->
   <div id="zone-edition">
     <div id="numeros">1</div>
     <div id="editeur-wrap">
@@ -275,46 +377,56 @@ body { display: flex; flex-direction: column; height: 100vh; }
                 autocomplete="off"></textarea>
     </div>
   </div>
+
+  <!-- PANNEAU SYMBOLES DROITE -->
+  <div id="panneau-sym">
+    <div id="sym-inner"></div>
+  </div>
+
 </div>
 
+<!-- STATUT -->
 <div id="statut">sans_titre.je  |  Ln: 1, Col: 1</div>
 
-<div class="overlay" id="overlay-fichier">
+<!-- POPUP RENOMMER -->
+<div class="overlay" id="overlay-renommer">
   <div class="popup">
-    <h3 id="popup-titre">Ouvrir</h3>
-    <div class="popup-info" id="popup-info"></div>
+    <h3>Renommer le fichier</h3>
+    <label>Nouveau nom</label>
+    <input type="text" id="renommer-input" placeholder="mon_algorithme">
+    <button class="popup-btn popup-btn-ok" id="renommer-ok">Renommer</button>
+    <button class="popup-btn popup-btn-annuler"
+            onclick="fermerPopup('overlay-renommer')">Annuler</button>
+  </div>
+</div>
+
+<!-- POPUP NOUVEAU -->
+<div class="overlay" id="overlay-nouveau">
+  <div class="popup">
+    <h3>Nouveau fichier</h3>
     <label>Nom du fichier</label>
-    <input type="text" id="popup-input" placeholder="mon_algorithme">
-    <button class="popup-btn popup-btn-ok" id="popup-ok">Confirmer</button>
-    <button class="popup-btn popup-btn-annuler" onclick="fermerPopup()">Annuler</button>
+    <input type="text" id="nouveau-input" placeholder="mon_algorithme">
+    <button class="popup-btn popup-btn-ok" id="nouveau-ok">Créer</button>
+    <button class="popup-btn popup-btn-annuler"
+            onclick="fermerPopup('overlay-nouveau')">Annuler</button>
   </div>
 </div>
 
 <script>
-// ── SERVICE WORKER + AUTO UPDATE ──
+// ── SERVICE WORKER ──
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(reg => {
-
-    // Vérifier mise à jour au chargement
     reg.update();
-
-    // Vérifier toutes les 30 secondes si en ligne
     setInterval(() => { if (navigator.onLine) reg.update(); }, 30000);
-
-    // Nouvelle version détectée → mise à jour automatique immédiate
     reg.addEventListener('updatefound', () => {
       const nouveau = reg.installing;
       nouveau.addEventListener('statechange', () => {
         if (nouveau.state === 'installed' && navigator.serviceWorker.controller) {
-          // Envoyer signal pour activer immédiatement
           nouveau.postMessage('SKIP_WAITING');
         }
       });
     });
   });
-
-  // Quand le nouveau SW prend le contrôle → recharger la page
-  // Le travail en cours est sauvegardé automatiquement avant
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     sauvegarderBrouillon();
     window.location.reload();
@@ -322,32 +434,36 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── ÉTAT ──
-let titreFichier  = 'sans_titre.je';
-let cheminFichier = null;
-let zoomLevel     = 1;
-let historique    = [];
-let futur         = [];
-let ignoreChange  = false;
-let suggEvent     = null;
-let panneauOuvert = false;
-let suggActifs    = [];
+let titreFichier   = 'sans_titre.je';
+let cheminFichier  = null;
+let zoomLevel      = 1;
+let historique     = [];
+let futur          = [];
+let ignoreChange   = false;
+let suggEvent      = null;
+let panneauFichOuvert = false;
+let panneauSymOuvert  = false;
+let suggActifs     = [];
+let renommerAncien = null;
 
-const editeur    = document.getElementById('editeur');
-const coloreur   = document.getElementById('coloreur');
-const numeros    = document.getElementById('numeros');
-const statut     = document.getElementById('statut');
-const suggScroll = document.getElementById('sugg-scroll');
-const suggInner  = document.getElementById('sugg-inner');
-const panneau    = document.getElementById('panneau-sym');
-const symInner   = document.getElementById('sym-inner');
-const importInput= document.getElementById('import-input');
+const editeur     = document.getElementById('editeur');
+const coloreur    = document.getElementById('coloreur');
+const numeros     = document.getElementById('numeros');
+const statut      = document.getElementById('statut');
+const suggScroll  = document.getElementById('sugg-scroll');
+const suggInner   = document.getElementById('sugg-inner');
+const panneauFich = document.getElementById('panneau-fich');
+const fichListe   = document.getElementById('fich-liste');
+const panneau     = document.getElementById('panneau-sym');
+const symInner    = document.getElementById('sym-inner');
+const importInput = document.getElementById('import-input');
+const btnFich     = document.getElementById('btn-fich');
+const btnSym      = document.getElementById('btn-sym');
 
-// ── SAUVEGARDE AUTOMATIQUE DU BROUILLON ──
-// Sauvegarde en temps réel dans localStorage
-// Survit aux rechargements, mises à jour, fermetures accidentelles
-const CLE_BROUILLON  = 'jealgo_brouillon_texte';
-const CLE_TITRE      = 'jealgo_brouillon_titre';
-const CLE_CHEMIN     = 'jealgo_brouillon_chemin';
+// ── BROUILLON ──
+const CLE_BROUILLON = 'jealgo_brouillon_texte';
+const CLE_TITRE     = 'jealgo_brouillon_titre';
+const CLE_CHEMIN    = 'jealgo_brouillon_chemin';
 
 function sauvegarderBrouillon() {
   localStorage.setItem(CLE_BROUILLON, editeur.value);
@@ -366,26 +482,23 @@ function restaurerBrouillon() {
   }
 }
 
-// Sauvegarde automatique toutes les 2 secondes
 setInterval(sauvegarderBrouillon, 2000);
-
-// Sauvegarde avant fermeture/rechargement
 window.addEventListener('beforeunload', sauvegarderBrouillon);
 
 // ── COLORATION ──
 const REGLES = [
-  { re: /(#[^\n]*)/g,                                                    cls:'c-comment' },
-  { re: /("(?:[^"\\]|\\.)*")/g,                                          cls:'c-string'  },
-  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,                            cls:'c-kw1'     },
-  { re: /\b(Variables?|Constantes?)\b/gi,                                cls:'c-type'    },
+  { re: /(#[^\n]*)/g,                                                     cls:'c-comment' },
+  { re: /("(?:[^"\\]|\\.)*")/g,                                           cls:'c-string'  },
+  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,                             cls:'c-kw1'     },
+  { re: /\b(Variables?|Constantes?)\b/gi,                                 cls:'c-type'    },
   { re: /\b(Fin\s+Si|Fin\s+Pour|Fin\s+Tant\s+que|Fin\s+Cas|Si|Sinon|Alors|Cas|Vaut|Pour|Faire|Tant\s+que|Repeter|Répeter|Jusqu|Tableau)\b/gi, cls:'c-kw2' },
   { re: /\b(Ecrire|Écrire|Lire|entiers?|réels?|reels?|booléens?|booleans?|caractères?|caracteres?|chaine\s+de\s+caractères?)\b/gi, cls:'c-builtin' },
-  { re: /\b(Retourne)\b/gi,                                              cls:'c-func'    },
-  { re: /\b(Fonction|Procedure)\b/gi,                                    cls:'c-type'    },
-  { re: /\b(vrai|faux)\b/gi,                                             cls:'c-bool'    },
-  { re: /\b(mod|div|et|ou|non)\b/gi,                                     cls:'c-op'      },
-  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,                        cls:'c-op'      },
-  { re: /\b(\d+(?:\.\d+)?)\b/g,                                          cls:'c-number'  },
+  { re: /\b(Retourne)\b/gi,                                               cls:'c-func'    },
+  { re: /\b(Fonction|Procedure)\b/gi,                                     cls:'c-type'    },
+  { re: /\b(vrai|faux)\b/gi,                                              cls:'c-bool'    },
+  { re: /\b(mod|div|et|ou|non)\b/gi,                                      cls:'c-op'      },
+  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,                         cls:'c-op'      },
+  { re: /\b(\d+(?:\.\d+)?)\b/g,                                           cls:'c-number'  },
 ];
 
 function escHtml(t) {
@@ -440,14 +553,14 @@ const MOTS_CLES = [
 ];
 
 const AUTO_COMPLETE = {
-  'ecrire':  { texte:'Ecrire("")',                            offset:2  },
-  'lire':    { texte:'Lire()',                                 offset:1  },
-  'algo':    { texte:'Algorithme \nDebut\n\nFin',              offset:15 },
-  'si':      { texte:'Si  Alors\n\nFin Si',                    offset:12 },
-  'pour':    { texte:"Pour  <- 1 jusqu'\nFaire\n\nFin Pour",   offset:32 },
-  'tantque': { texte:'Tant que \nFaire\n\nFin Tant que',       offset:22 },
-  'fonc':    { texte:'Fonction ():\n\nFin Fonction',           offset:10 },
-  'proc':    { texte:'Procedure ():\n\nFin Procedure',         offset:12 },
+  'ecrire':  { texte:'Ecrire("")',                           offset:2  },
+  'lire':    { texte:'Lire()',                                offset:1  },
+  'algo':    { texte:'Algorithme \nDebut\n\nFin',             offset:15 },
+  'si':      { texte:'Si  Alors\n\nFin Si',                   offset:12 },
+  'pour':    { texte:"Pour  <- 1 jusqu'\nFaire\n\nFin Pour",  offset:32 },
+  'tantque': { texte:'Tant que \nFaire\n\nFin Tant que',      offset:22 },
+  'fonc':    { texte:'Fonction ():\n\nFin Fonction',          offset:10 },
+  'proc':    { texte:'Procedure ():\n\nFin Procedure',        offset:12 },
 };
 
 const PAIRES = { '(':')', '"':'"', '[':']' };
@@ -487,6 +600,19 @@ SYMBOLES.forEach(s => {
   symInner.appendChild(b);
 });
 
+// ── PANNEAUX ──
+function toggleFichiers() {
+  panneauFichOuvert = !panneauFichOuvert;
+  panneauFich.classList.toggle('ouvert', panneauFichOuvert);
+  btnFich.classList.toggle('btn-actif', panneauFichOuvert);
+}
+
+function toggleSymboles() {
+  panneauSymOuvert = !panneauSymOuvert;
+  panneau.classList.toggle('ouvert', panneauSymOuvert);
+  btnSym.classList.toggle('btn-actif', panneauSymOuvert);
+}
+
 // ── ZOOM ──
 function zoom(dir) {
   zoomLevel = Math.min(Math.max(zoomLevel + dir * 0.15, 0.5), 3);
@@ -515,12 +641,6 @@ document.addEventListener('touchmove', e => {
 }, {passive:true});
 document.addEventListener('touchend', () => { distInit = null; }, {passive:true});
 
-// ── PANNEAU ──
-function toggleSymboles() {
-  panneauOuvert = !panneauOuvert;
-  panneau.classList.toggle('ouvert', panneauOuvert);
-}
-
 // ── INSERTION ──
 function inserer(texte, estPaire) {
   const s   = editeur.selectionStart;
@@ -545,7 +665,7 @@ function inserer(texte, estPaire) {
 editeur.addEventListener('keydown', e => {
   if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undo(); return; }
   if ((e.ctrlKey||e.metaKey) && e.key==='y') { e.preventDefault(); redo(); return; }
-  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); enregistrer(); return; }
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); sauverFichierActuel(); return; }
 
   if (e.key === 'Tab') {
     e.preventDefault();
@@ -603,7 +723,9 @@ function majTout() {
   majNumeros();
   majStatut();
   majColoreur();
-  sauvegarderBrouillon(); // Sauvegarde à chaque modification
+  sauvegarderBrouillon();
+  // Sauvegarde automatique dans la liste
+  if (cheminFichier) sauverFichierSilencieux(cheminFichier);
 }
 
 function majNumeros() {
@@ -653,7 +775,6 @@ function majSuggestions() {
 
   const pl = prefixe.toLowerCase();
 
-  // Hint TAB
   const hint = document.createElement('span');
   hint.className = 'sugg-tab-hint';
   hint.textContent = 'TAB=OK';
@@ -692,7 +813,7 @@ function majSuggestions() {
 
   if (!suggActifs.length) {
     suggInner.appendChild(hint);
-    suggActifs.push({ template:false, mot: tous[0] });
+    if (tous.length) suggActifs.push({ template:false, mot: tous[0] });
   }
 
   tous.slice(0,7).forEach((mot, idx) => {
@@ -752,32 +873,58 @@ function setListe(l) {
   localStorage.setItem('jealgo_liste', JSON.stringify(l));
 }
 
-function nouveau() {
-  if (editeur.value && !confirm('Nouveau fichier ? Le travail actuel sera perdu.')) return;
-  editeur.value = '';
-  titreFichier  = 'sans_titre.je';
-  cheminFichier = null;
-  historique = []; futur = [];
-  localStorage.removeItem(CLE_BROUILLON);
-  localStorage.removeItem(CLE_TITRE);
-  localStorage.removeItem(CLE_CHEMIN);
-  majTout();
+function majPanneauFichiers() {
+  fichListe.innerHTML = '';
+  const liste = getListe();
+  if (!liste.length) {
+    const vide = document.createElement('div');
+    vide.style.cssText = 'color:#555;font-size:11px;padding:12px 10px;text-align:center;';
+    vide.textContent = 'Aucun fichier';
+    fichListe.appendChild(vide);
+    return;
+  }
+  liste.forEach(nom => {
+    const item = document.createElement('div');
+    item.className = 'fich-item' + (nom === cheminFichier ? ' actif' : '');
+
+    const nomEl = document.createElement('span');
+    nomEl.className = 'fich-nom';
+    nomEl.textContent = nom;
+    nomEl.title = 'Clic: ouvrir | Double-clic: renommer';
+    nomEl.addEventListener('click', () => ouvrirFichier(nom));
+    nomEl.addEventListener('dblclick', () => demanderRenommer(nom));
+
+    const sup = document.createElement('button');
+    sup.className = 'fich-sup';
+    sup.textContent = '🗑';
+    sup.title = 'Supprimer';
+    sup.addEventListener('click', e => {
+      e.stopPropagation();
+      supprimerFichier(nom);
+    });
+
+    item.appendChild(nomEl);
+    item.appendChild(sup);
+    fichListe.appendChild(item);
+  });
 }
 
-function enregistrer() {
-  if (!cheminFichier) ouvrirPopup('sauver');
-  else sauverFichier(cheminFichier);
-}
-
-function sauverFichier(nom) {
-  if (!nom.endsWith('.je')) nom += '.je';
+function sauverFichierSilencieux(nom) {
+  if (!nom) return;
   localStorage.setItem('jealgo_' + nom, editeur.value);
   const liste = getListe();
-  if (!liste.includes(nom)) { liste.push(nom); setListe(liste); }
-  titreFichier  = nom;
-  cheminFichier = nom;
-  sauvegarderBrouillon();
-  statut.textContent = '✓ Enregistré : ' + nom;
+  if (!liste.includes(nom)) { liste.push(nom); setListe(liste); majPanneauFichiers(); }
+}
+
+function sauverFichierActuel() {
+  if (!cheminFichier) {
+    // Demander le nom
+    ouvrirPopupNouveau(true);
+  } else {
+    sauverFichierSilencieux(cheminFichier);
+    statut.textContent = '✓ ' + cheminFichier + '  |  sauvegardé';
+    setTimeout(majStatut, 1500);
+  }
 }
 
 function ouvrirFichier(nom) {
@@ -789,8 +936,88 @@ function ouvrirFichier(nom) {
   cheminFichier = nom;
   historique = []; futur = [];
   majTout();
+  majPanneauFichiers();
 }
 
+function supprimerFichier(nom) {
+  if (!confirm('Supprimer ' + nom + ' ?')) return;
+  localStorage.removeItem('jealgo_' + nom);
+  const liste = getListe().filter(n => n !== nom);
+  setListe(liste);
+  if (cheminFichier === nom) {
+    editeur.value = '';
+    titreFichier  = 'sans_titre.je';
+    cheminFichier = null;
+    localStorage.removeItem(CLE_BROUILLON);
+    localStorage.removeItem(CLE_TITRE);
+    localStorage.removeItem(CLE_CHEMIN);
+    majTout();
+  }
+  majPanneauFichiers();
+}
+
+function demanderRenommer(nom) {
+  renommerAncien = nom;
+  const input = document.getElementById('renommer-input');
+  input.value = nom.replace('.je','');
+  document.getElementById('overlay-renommer').classList.add('visible');
+  setTimeout(() => input.focus(), 100);
+}
+
+document.getElementById('renommer-ok').addEventListener('click', () => {
+  let nouveau = document.getElementById('renommer-input').value.trim();
+  if (!nouveau) return;
+  if (!nouveau.endsWith('.je')) nouveau += '.je';
+  if (nouveau === renommerAncien) { fermerPopup('overlay-renommer'); return; }
+  const contenu = localStorage.getItem('jealgo_' + renommerAncien);
+  localStorage.setItem('jealgo_' + nouveau, contenu);
+  localStorage.removeItem('jealgo_' + renommerAncien);
+  const liste = getListe().map(n => n === renommerAncien ? nouveau : n);
+  setListe(liste);
+  if (cheminFichier === renommerAncien) {
+    titreFichier  = nouveau;
+    cheminFichier = nouveau;
+    sauvegarderBrouillon();
+  }
+  fermerPopup('overlay-renommer');
+  majPanneauFichiers();
+  majStatut();
+});
+
+function nouveauFichier() { ouvrirPopupNouveau(false); }
+
+function ouvrirPopupNouveau(estSauvegarde) {
+  const input = document.getElementById('nouveau-input');
+  const ok    = document.getElementById('nouveau-ok');
+  input.value = '';
+  input.placeholder = estSauvegarde ? titreFichier.replace('.je','') : 'mon_algorithme';
+  ok.textContent = estSauvegarde ? 'Enregistrer' : 'Créer';
+  ok.onclick = () => {
+    let nom = input.value.trim() || (estSauvegarde ? titreFichier : 'sans_titre');
+    if (!nom.endsWith('.je')) nom += '.je';
+    if (!estSauvegarde) {
+      // Nouveau fichier vide
+      if (editeur.value && !confirm('Créer un nouveau fichier ? Le travail actuel sera perdu.')) {
+        fermerPopup('overlay-nouveau'); return;
+      }
+      editeur.value = '';
+      historique = []; futur = [];
+    }
+    localStorage.setItem('jealgo_' + nom, editeur.value);
+    const liste = getListe();
+    if (!liste.includes(nom)) { liste.push(nom); setListe(liste); }
+    titreFichier  = nom;
+    cheminFichier = nom;
+    sauvegarderBrouillon();
+    fermerPopup('overlay-nouveau');
+    majTout();
+    majPanneauFichiers();
+  };
+  document.getElementById('overlay-nouveau').classList.add('visible');
+  setTimeout(() => input.focus(), 100);
+}
+
+// ── IMPORT / EXPORT ──
 function importerFichier() { importInput.click(); }
 
 importInput.addEventListener('change', e => {
@@ -799,11 +1026,14 @@ importInput.addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = ev => {
     editeur.value = ev.target.result;
-    titreFichier  = file.name;
-    cheminFichier = file.name;
+    let nom = file.name;
+    if (!nom.endsWith('.je')) nom = nom.split('.')[0] + '.je';
+    titreFichier  = nom;
+    cheminFichier = nom;
     historique = []; futur = [];
-    sauverFichier(file.name);
+    sauverFichierSilencieux(nom);
     majTout();
+    majPanneauFichiers();
   };
   reader.readAsText(file);
   importInput.value = '';
@@ -819,48 +1049,27 @@ function exporterFichier() {
 }
 
 // ── POPUP ──
-function ouvrirPopup(mode) {
-  const overlay = document.getElementById('overlay-fichier');
-  const titre   = document.getElementById('popup-titre');
-  const info    = document.getElementById('popup-info');
-  const input   = document.getElementById('popup-input');
-  const ok      = document.getElementById('popup-ok');
-
-  if (mode === 'sauver') {
-    titre.textContent = 'Enregistrer';
-    info.textContent  = 'Sauvegardé dans le navigateur\nSurvit aux rechargements';
-    input.placeholder = 'mon_algorithme';
-    ok.textContent    = 'Enregistrer';
-    ok.onclick = () => { sauverFichier(input.value.trim() || 'sans_titre'); fermerPopup(); };
-  } else {
-    titre.textContent = 'Ouvrir';
-    const liste = getListe();
-    info.textContent = liste.length
-      ? 'Fichiers disponibles :\n' + liste.join('\n')
-      : 'Aucun fichier.\nUtilise Importer pour charger depuis ton appareil.';
-    input.placeholder = 'mon_algorithme.je';
-    ok.textContent    = 'Ouvrir';
-    ok.onclick = () => { ouvrirFichier(input.value.trim()); fermerPopup(); };
-  }
-  input.value = '';
-  overlay.classList.add('visible');
-  setTimeout(() => input.focus(), 100);
+function fermerPopup(id) {
+  document.getElementById(id).classList.remove('visible');
 }
 
-function fermerPopup() {
-  document.getElementById('overlay-fichier').classList.remove('visible');
-}
-
-document.getElementById('overlay-fichier').addEventListener('click', e => {
-  if (e.target === e.currentTarget) fermerPopup();
+document.getElementById('overlay-renommer').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fermerPopup('overlay-renommer');
 });
-document.getElementById('popup-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('popup-ok').click();
+document.getElementById('overlay-nouveau').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fermerPopup('overlay-nouveau');
+});
+document.getElementById('renommer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('renommer-ok').click();
+});
+document.getElementById('nouveau-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('nouveau-ok').click();
 });
 
 // ── INIT ──
-restaurerBrouillon(); // Restaure le travail en cours au démarrage
+restaurerBrouillon();
 majTout();
+majPanneauFichiers();
 </script>
 </body>
 </html>
