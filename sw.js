@@ -1,15 +1,14 @@
-const CACHE = 'jealgo-v1';
+// sw.js
+const CACHE = 'jealgo-v2';
 const FILES = [
-  '/jealgo/',
-  '/jealgo/index.html',
-  '/jealgo/manifest.json',
-  '/jealgo/profil.png'
+  '/Jealgo/',
+  '/Jealgo/index.html',
+  '/Jealgo/manifest.json',
+  '/Jealgo/profil.png'
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(FILES))
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
   self.skipWaiting();
 });
 
@@ -26,10 +25,16 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
       .then(res => {
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
         return res;
       })
       .catch(() => caches.match(e.request))
   );
+});
+
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });

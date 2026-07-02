@@ -13,7 +13,6 @@
 html, body { height: 100%; overflow: hidden; background: #1a1a1c; }
 body { display: flex; flex-direction: column; height: 100vh; }
 
-/* ── TOOLBAR ── */
 #toolbar {
   display: flex;
   align-items: center;
@@ -38,12 +37,11 @@ body { display: flex; flex-direction: column; height: 100vh; }
   transition: filter 0.1s, transform 0.1s;
 }
 .btn:active { filter: brightness(1.5); transform: scale(0.95); }
-.btn-sauver  { background: #2d7a45; }
-.btn-import  { background: #1a5a8a; }
-.btn-export  { background: #6a3a8a; }
-.btn-tab     { background: #3a3a6a; letter-spacing: 1px; }
+.btn-sauver { background: #2d7a45; }
+.btn-import { background: #1a5a8a; }
+.btn-export { background: #6a3a8a; }
+.btn-tab    { background: #3a3a6a; }
 
-/* ── SUGGESTIONS ── */
 #sugg-scroll {
   background: #202022;
   overflow-x: auto;
@@ -70,26 +68,20 @@ body { display: flex; flex-direction: column; height: 100vh; }
   white-space: nowrap;
   font-weight: bold;
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 .sugg-btn:active { filter: brightness(1.5); }
-#sugg-tab {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  background: #555;
-  color: #fff;
+.sugg-tab-hint {
+  padding: 4px 8px;
+  background: #444;
+  color: #ccc;
+  border-radius: 4px;
   font-size: 11px;
-  font-weight: bold;
-  cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-/* ── ZONE PRINCIPALE ── */
 #main { display: flex; flex: 1; overflow: hidden; }
 
-/* ── PANNEAU SYMBOLES ── */
 #panneau-sym {
   width: 0;
   overflow: hidden;
@@ -121,8 +113,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
 }
 .sym-btn:active { filter: brightness(1.5); }
 
-/* ── ZONE EDITION ── */
-#zone-edition { display: flex; flex: 1; overflow: hidden; position: relative; }
+#zone-edition { display: flex; flex: 1; overflow: hidden; }
 #numeros {
   background: #e8e8e8;
   color: #999;
@@ -182,7 +173,6 @@ body { display: flex; flex-direction: column; height: 100vh; }
   word-wrap: normal;
 }
 
-/* ── COULEURS SYNTAXIQUES ── */
 .c-comment { color: #b35a00; font-style: italic; }
 .c-string  { color: #1a7a1a; font-weight: bold; }
 .c-kw1     { color: #cc4400; font-weight: bold; }
@@ -195,7 +185,6 @@ body { display: flex; flex-direction: column; height: 100vh; }
 .c-number  { color: #0077cc; }
 .c-default { color: #222222; }
 
-/* ── STATUT ── */
 #statut {
   background: #d8d8d8;
   color: #444;
@@ -206,10 +195,8 @@ body { display: flex; flex-direction: column; height: 100vh; }
   overflow: hidden;
 }
 
-/* ── INPUT IMPORT CACHÉ ── */
 #import-input { display: none; }
 
-/* ── POPUP ── */
 .overlay {
   display: none;
   position: fixed;
@@ -241,7 +228,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
   color: #eee;
   font-size: 15px;
 }
-.popup-info { color: #888; font-size: 12px; line-height: 1.5; }
+.popup-info { color: #aaa; font-size: 12px; line-height: 1.6; white-space: pre-line; }
 .popup-btn {
   padding: 12px;
   border: none;
@@ -257,10 +244,8 @@ body { display: flex; flex-direction: column; height: 100vh; }
 </head>
 <body>
 
-<!-- INPUT IMPORT CACHÉ -->
-<input type="file" id="import-input" accept=".je,.txt">
+<input type="file" id="import-input" accept=".je,.txt,.md">
 
-<!-- TOOLBAR -->
 <div id="toolbar">
   <button class="btn" onclick="nouveau()">Nouveau</button>
   <button class="btn" onclick="ouvrirPopup('ouvrir')">Ouvrir</button>
@@ -275,12 +260,10 @@ body { display: flex; flex-direction: column; height: 100vh; }
   <button class="btn" onclick="toggleSymboles()">☰ Sym</button>
 </div>
 
-<!-- SUGGESTIONS -->
 <div id="sugg-scroll">
   <div id="sugg-inner"></div>
 </div>
 
-<!-- MAIN -->
 <div id="main">
   <div id="panneau-sym"><div id="sym-inner"></div></div>
   <div id="zone-edition">
@@ -294,10 +277,8 @@ body { display: flex; flex-direction: column; height: 100vh; }
   </div>
 </div>
 
-<!-- STATUT -->
 <div id="statut">sans_titre.je  |  Ln: 1, Col: 1</div>
 
-<!-- POPUP -->
 <div class="overlay" id="overlay-fichier">
   <div class="popup">
     <h3 id="popup-titre">Ouvrir</h3>
@@ -310,8 +291,34 @@ body { display: flex; flex-direction: column; height: 100vh; }
 </div>
 
 <script>
+// ── SERVICE WORKER + AUTO UPDATE ──
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.register('sw.js').then(reg => {
+
+    // Vérifier mise à jour au chargement
+    reg.update();
+
+    // Vérifier toutes les 30 secondes si en ligne
+    setInterval(() => { if (navigator.onLine) reg.update(); }, 30000);
+
+    // Nouvelle version détectée → mise à jour automatique immédiate
+    reg.addEventListener('updatefound', () => {
+      const nouveau = reg.installing;
+      nouveau.addEventListener('statechange', () => {
+        if (nouveau.state === 'installed' && navigator.serviceWorker.controller) {
+          // Envoyer signal pour activer immédiatement
+          nouveau.postMessage('SKIP_WAITING');
+        }
+      });
+    });
+  });
+
+  // Quand le nouveau SW prend le contrôle → recharger la page
+  // Le travail en cours est sauvegardé automatiquement avant
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    sauvegarderBrouillon();
+    window.location.reload();
+  });
 }
 
 // ── ÉTAT ──
@@ -324,7 +331,6 @@ let ignoreChange  = false;
 let suggEvent     = null;
 let panneauOuvert = false;
 let suggActifs    = [];
-let suggIndex     = -1;
 
 const editeur    = document.getElementById('editeur');
 const coloreur   = document.getElementById('coloreur');
@@ -336,32 +342,50 @@ const panneau    = document.getElementById('panneau-sym');
 const symInner   = document.getElementById('sym-inner');
 const importInput= document.getElementById('import-input');
 
+// ── SAUVEGARDE AUTOMATIQUE DU BROUILLON ──
+// Sauvegarde en temps réel dans localStorage
+// Survit aux rechargements, mises à jour, fermetures accidentelles
+const CLE_BROUILLON  = 'jealgo_brouillon_texte';
+const CLE_TITRE      = 'jealgo_brouillon_titre';
+const CLE_CHEMIN     = 'jealgo_brouillon_chemin';
+
+function sauvegarderBrouillon() {
+  localStorage.setItem(CLE_BROUILLON, editeur.value);
+  localStorage.setItem(CLE_TITRE,     titreFichier);
+  localStorage.setItem(CLE_CHEMIN,    cheminFichier || '');
+}
+
+function restaurerBrouillon() {
+  const texte  = localStorage.getItem(CLE_BROUILLON);
+  const titre  = localStorage.getItem(CLE_TITRE);
+  const chemin = localStorage.getItem(CLE_CHEMIN);
+  if (texte !== null) {
+    editeur.value = texte;
+    titreFichier  = titre  || 'sans_titre.je';
+    cheminFichier = chemin || null;
+  }
+}
+
+// Sauvegarde automatique toutes les 2 secondes
+setInterval(sauvegarderBrouillon, 2000);
+
+// Sauvegarde avant fermeture/rechargement
+window.addEventListener('beforeunload', sauvegarderBrouillon);
+
 // ── COLORATION ──
 const REGLES = [
-  { re: /(#[^\n]*)/g,
-    cls: 'c-comment' },
-  { re: /("(?:[^"\\]|\\.)*")/g,
-    cls: 'c-string' },
-  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,
-    cls: 'c-kw1' },
-  { re: /\b(Variables?|Constantes?)\b/gi,
-    cls: 'c-type' },
-  { re: /\b(Fin\s+Si|Fin\s+Pour|Fin\s+Tant\s+que|Fin\s+Cas|Si|Sinon|Alors|Cas|Vaut|Pour|Faire|Tant\s+que|Repeter|Répeter|Jusqu|Tableau)\b/gi,
-    cls: 'c-kw2' },
-  { re: /\b(Ecrire|Écrire|Lire|entiers?|réels?|reels?|booléens?|booleans?|caractères?|caracteres?|chaine\s+de\s+caractères?)\b/gi,
-    cls: 'c-builtin' },
-  { re: /\b(Retourne)\b/gi,
-    cls: 'c-func' },
-  { re: /\b(Fonction|Procedure)\b/gi,
-    cls: 'c-type' },
-  { re: /\b(vrai|faux)\b/gi,
-    cls: 'c-bool' },
-  { re: /\b(mod|div|et|ou|non)\b/gi,
-    cls: 'c-op' },
-  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,
-    cls: 'c-op' },
-  { re: /\b(\d+(?:\.\d+)?)\b/g,
-    cls: 'c-number' },
+  { re: /(#[^\n]*)/g,                                                    cls:'c-comment' },
+  { re: /("(?:[^"\\]|\\.)*")/g,                                          cls:'c-string'  },
+  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,                            cls:'c-kw1'     },
+  { re: /\b(Variables?|Constantes?)\b/gi,                                cls:'c-type'    },
+  { re: /\b(Fin\s+Si|Fin\s+Pour|Fin\s+Tant\s+que|Fin\s+Cas|Si|Sinon|Alors|Cas|Vaut|Pour|Faire|Tant\s+que|Repeter|Répeter|Jusqu|Tableau)\b/gi, cls:'c-kw2' },
+  { re: /\b(Ecrire|Écrire|Lire|entiers?|réels?|reels?|booléens?|booleans?|caractères?|caracteres?|chaine\s+de\s+caractères?)\b/gi, cls:'c-builtin' },
+  { re: /\b(Retourne)\b/gi,                                              cls:'c-func'    },
+  { re: /\b(Fonction|Procedure)\b/gi,                                    cls:'c-type'    },
+  { re: /\b(vrai|faux)\b/gi,                                             cls:'c-bool'    },
+  { re: /\b(mod|div|et|ou|non)\b/gi,                                     cls:'c-op'      },
+  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,                        cls:'c-op'      },
+  { re: /\b(\d+(?:\.\d+)?)\b/g,                                          cls:'c-number'  },
 ];
 
 function escHtml(t) {
@@ -375,24 +399,19 @@ function colorier(txt) {
       const next = [];
       for (const s of segs) {
         if (s.ok) { next.push(s); continue; }
-        let last = 0;
-        re.lastIndex = 0;
-        let m;
+        let last = 0; re.lastIndex = 0; let m;
         while ((m = re.exec(s.t)) !== null) {
-          if (m.index > last)
-            next.push({ t: s.t.slice(last, m.index), ok: false });
+          if (m.index > last) next.push({ t: s.t.slice(last, m.index), ok: false });
           next.push({ t: m[0], ok: true, cls });
           last = re.lastIndex;
         }
-        if (last < s.t.length)
-          next.push({ t: s.t.slice(last), ok: false });
+        if (last < s.t.length) next.push({ t: s.t.slice(last), ok: false });
       }
       segs = next;
     }
     return segs.map(s =>
-      s.ok
-        ? `<span class="${s.cls}">${escHtml(s.t)}</span>`
-        : `<span class="c-default">${escHtml(s.t)}</span>`
+      s.ok ? `<span class="${s.cls}">${escHtml(s.t)}</span>`
+           : `<span class="c-default">${escHtml(s.t)}</span>`
     ).join('');
   }).join('\n');
 }
@@ -421,14 +440,14 @@ const MOTS_CLES = [
 ];
 
 const AUTO_COMPLETE = {
-  'ecrire':  { texte:'Ecrire("")',                           offset:2  },
-  'lire':    { texte:'Lire()',                                offset:1  },
-  'algo':    { texte:'Algorithme \nDebut\n\nFin',             offset:15 },
-  'si':      { texte:'Si  Alors\n\nFin Si',                   offset:12 },
-  'pour':    { texte:"Pour  <- 1 jusqu'\nFaire\n\nFin Pour",  offset:32 },
-  'tantque': { texte:'Tant que \nFaire\n\nFin Tant que',      offset:22 },
-  'fonc':    { texte:'Fonction ():\n\nFin Fonction',          offset:10 },
-  'proc':    { texte:'Procedure ():\n\nFin Procedure',        offset:12 },
+  'ecrire':  { texte:'Ecrire("")',                            offset:2  },
+  'lire':    { texte:'Lire()',                                 offset:1  },
+  'algo':    { texte:'Algorithme \nDebut\n\nFin',              offset:15 },
+  'si':      { texte:'Si  Alors\n\nFin Si',                    offset:12 },
+  'pour':    { texte:"Pour  <- 1 jusqu'\nFaire\n\nFin Pour",   offset:32 },
+  'tantque': { texte:'Tant que \nFaire\n\nFin Tant que',       offset:22 },
+  'fonc':    { texte:'Fonction ():\n\nFin Fonction',           offset:10 },
+  'proc':    { texte:'Procedure ():\n\nFin Procedure',         offset:12 },
 };
 
 const PAIRES = { '(':')', '"':'"', '[':']' };
@@ -524,28 +543,22 @@ function inserer(texte, estPaire) {
 
 // ── CLAVIER ──
 editeur.addEventListener('keydown', e => {
-  // Undo/Redo
   if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undo(); return; }
   if ((e.ctrlKey||e.metaKey) && e.key==='y') { e.preventDefault(); redo(); return; }
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); enregistrer(); return; }
 
-  // Tab = accepter suggestion si visible, sinon insérer tab
   if (e.key === 'Tab') {
     e.preventDefault();
     if (suggActifs.length > 0) {
-      // Accepter la première suggestion
-      const premier = suggActifs[0];
-      if (premier.template) {
-        completerTemplate(premier.texte, premier.offset);
-      } else {
-        completer(premier.mot);
-      }
+      const p = suggActifs[0];
+      if (p.template) completerTemplate(p.texte, p.offset);
+      else completer(p.mot);
     } else {
       inserer('\t', false);
     }
     return;
   }
 
-  // Échap = fermer suggestions
   if (e.key === 'Escape') {
     suggInner.innerHTML = '';
     suggScroll.classList.remove('visible');
@@ -553,7 +566,6 @@ editeur.addEventListener('keydown', e => {
     return;
   }
 
-  // Auto-fermeture paires
   if (PAIRES[e.key]) {
     e.preventDefault();
     inserer(e.key, true);
@@ -591,6 +603,7 @@ function majTout() {
   majNumeros();
   majStatut();
   majColoreur();
+  sauvegarderBrouillon(); // Sauvegarde à chaque modification
 }
 
 function majNumeros() {
@@ -600,10 +613,10 @@ function majNumeros() {
 }
 
 function majStatut() {
-  const pos  = editeur.selectionStart;
+  const pos   = editeur.selectionStart;
   const avant = editeur.value.slice(0, pos);
-  const ln   = (avant.match(/\n/g)||[]).length + 1;
-  const col  = avant.length - (avant.lastIndexOf('\n') + 1) + 1;
+  const ln    = (avant.match(/\n/g)||[]).length + 1;
+  const col   = avant.length - (avant.lastIndexOf('\n') + 1) + 1;
   statut.textContent = `${titreFichier}  |  Ln: ${ln}, Col: ${col}`;
 }
 
@@ -628,9 +641,9 @@ function redo() {
 
 // ── SUGGESTIONS ──
 function majSuggestions() {
-  const pos    = editeur.selectionStart;
-  const avant  = editeur.value.slice(0, pos);
-  const m      = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
+  const pos     = editeur.selectionStart;
+  const avant   = editeur.value.slice(0, pos);
+  const m       = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
   const prefixe = m ? m[0] : '';
 
   suggInner.innerHTML = '';
@@ -640,12 +653,11 @@ function majSuggestions() {
 
   const pl = prefixe.toLowerCase();
 
-  // Bouton Tab hint
-  const tabHint = document.createElement('span');
-  tabHint.id = 'sugg-tab';
-  tabHint.textContent = 'TAB ✓';
+  // Hint TAB
+  const hint = document.createElement('span');
+  hint.className = 'sugg-tab-hint';
+  hint.textContent = 'TAB=OK';
 
-  // Template
   if (AUTO_COMPLETE[pl]) {
     const { texte, offset } = AUTO_COMPLETE[pl];
     const b = document.createElement('button');
@@ -653,20 +665,19 @@ function majSuggestions() {
     b.style.background = '#8a2a10';
     b.textContent = '▶ ' + texte.replace(/\n/g,' ').slice(0,22);
     b.addEventListener('click', () => completerTemplate(texte, offset));
-    suggActifs.unshift({ template:true, texte, offset });
-    suggInner.appendChild(tabHint);
+    suggActifs.push({ template:true, texte, offset });
+    suggInner.appendChild(hint);
     suggInner.appendChild(b);
   }
 
-  // Mots-clés
   const cles = MOTS_CLES.filter(mk =>
     mk.toLowerCase().startsWith(pl) && mk.toLowerCase() !== pl
   );
   const vus = new Set(cles.map(mk => mk.toLowerCase()));
   const fichiermots = [];
-  const re = /[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*/g;
+  const re2 = /[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*/g;
   let mm;
-  while ((mm = re.exec(editeur.value)) !== null) {
+  while ((mm = re2.exec(editeur.value)) !== null) {
     const mot = mm[0];
     if (mot.toLowerCase().startsWith(pl) &&
         mot.toLowerCase() !== pl &&
@@ -679,9 +690,8 @@ function majSuggestions() {
   const tous = [...cles.slice(0,5), ...fichiermots.slice(0,3)];
   if (!tous.length && !suggActifs.length) return;
 
-  if (!suggActifs.length && tous.length) {
-    // Ajouter tabHint si pas de template
-    suggInner.appendChild(tabHint);
+  if (!suggActifs.length) {
+    suggInner.appendChild(hint);
     suggActifs.push({ template:false, mot: tous[0] });
   }
 
@@ -692,7 +702,7 @@ function majSuggestions() {
     b.textContent = mot;
     b.addEventListener('click', () => completer(mot));
     if (idx === 0 && !AUTO_COMPLETE[pl]) suggActifs[0] = { template:false, mot };
-    else if (idx > 0 || AUTO_COMPLETE[pl]) suggActifs.push({ template:false, mot });
+    else suggActifs.push({ template:false, mot });
     suggInner.appendChild(b);
   });
 
@@ -700,16 +710,15 @@ function majSuggestions() {
 }
 
 function completer(mot) {
-  const pos    = editeur.selectionStart;
-  const avant  = editeur.value.slice(0, pos);
-  const m      = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
+  const pos     = editeur.selectionStart;
+  const avant   = editeur.value.slice(0, pos);
+  const m       = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
   const prefixe = m ? m[0] : '';
-  const debut  = pos - prefixe.length;
-  ignoreChange = true;
+  const debut   = pos - prefixe.length;
+  ignoreChange  = true;
   editeur.value = editeur.value.slice(0,debut) + mot + editeur.value.slice(pos);
-  ignoreChange = false;
-  const nc = debut + mot.length;
-  editeur.setSelectionRange(nc, nc);
+  ignoreChange  = false;
+  editeur.setSelectionRange(debut + mot.length, debut + mot.length);
   editeur.focus();
   suggInner.innerHTML = '';
   suggScroll.classList.remove('visible');
@@ -718,14 +727,14 @@ function completer(mot) {
 }
 
 function completerTemplate(texte, offset) {
-  const pos    = editeur.selectionStart;
-  const avant  = editeur.value.slice(0, pos);
-  const m      = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
+  const pos     = editeur.selectionStart;
+  const avant   = editeur.value.slice(0, pos);
+  const m       = avant.match(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*$/);
   const prefixe = m ? m[0] : '';
-  const debut  = pos - prefixe.length;
-  ignoreChange = true;
+  const debut   = pos - prefixe.length;
+  ignoreChange  = true;
   editeur.value = editeur.value.slice(0,debut) + texte + editeur.value.slice(pos);
-  ignoreChange = false;
+  ignoreChange  = false;
   const nc = debut + texte.length - offset;
   editeur.setSelectionRange(nc, nc);
   editeur.focus();
@@ -735,21 +744,23 @@ function completerTemplate(texte, offset) {
   majTout();
 }
 
-// ── FICHIERS localStorage ──
+// ── FICHIERS ──
 function getListe() {
   return JSON.parse(localStorage.getItem('jealgo_liste') || '[]');
 }
-
-function setListe(liste) {
-  localStorage.setItem('jealgo_liste', JSON.stringify(liste));
+function setListe(l) {
+  localStorage.setItem('jealgo_liste', JSON.stringify(l));
 }
 
 function nouveau() {
-  if (editeur.value && !confirm('Nouveau fichier ? Modifications non sauvegardées perdues.')) return;
+  if (editeur.value && !confirm('Nouveau fichier ? Le travail actuel sera perdu.')) return;
   editeur.value = '';
   titreFichier  = 'sans_titre.je';
   cheminFichier = null;
   historique = []; futur = [];
+  localStorage.removeItem(CLE_BROUILLON);
+  localStorage.removeItem(CLE_TITRE);
+  localStorage.removeItem(CLE_CHEMIN);
   majTout();
 }
 
@@ -765,6 +776,7 @@ function sauverFichier(nom) {
   if (!liste.includes(nom)) { liste.push(nom); setListe(liste); }
   titreFichier  = nom;
   cheminFichier = nom;
+  sauvegarderBrouillon();
   statut.textContent = '✓ Enregistré : ' + nom;
 }
 
@@ -779,10 +791,7 @@ function ouvrirFichier(nom) {
   majTout();
 }
 
-// ── IMPORT depuis PC/téléphone ──
-function importerFichier() {
-  importInput.click();
-}
+function importerFichier() { importInput.click(); }
 
 importInput.addEventListener('change', e => {
   const file = e.target.files[0];
@@ -793,7 +802,6 @@ importInput.addEventListener('change', e => {
     titreFichier  = file.name;
     cheminFichier = file.name;
     historique = []; futur = [];
-    // Sauvegarder automatiquement
     sauverFichier(file.name);
     majTout();
   };
@@ -801,15 +809,12 @@ importInput.addEventListener('change', e => {
   importInput.value = '';
 });
 
-// ── EXPORT vers PC/téléphone ──
 function exporterFichier() {
-  const nom     = cheminFichier || titreFichier || 'sans_titre.je';
-  const blob    = new Blob([editeur.value], { type: 'text/plain' });
-  const url     = URL.createObjectURL(blob);
-  const a       = document.createElement('a');
-  a.href        = url;
-  a.download    = nom;
-  a.click();
+  const nom  = cheminFichier || titreFichier || 'sans_titre.je';
+  const blob = new Blob([editeur.value], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = nom; a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -823,7 +828,7 @@ function ouvrirPopup(mode) {
 
   if (mode === 'sauver') {
     titre.textContent = 'Enregistrer';
-    info.textContent  = 'Sauvegardé dans le navigateur (survit au rechargement)';
+    info.textContent  = 'Sauvegardé dans le navigateur\nSurvit aux rechargements';
     input.placeholder = 'mon_algorithme';
     ok.textContent    = 'Enregistrer';
     ok.onclick = () => { sauverFichier(input.value.trim() || 'sans_titre'); fermerPopup(); };
@@ -831,8 +836,8 @@ function ouvrirPopup(mode) {
     titre.textContent = 'Ouvrir';
     const liste = getListe();
     info.textContent = liste.length
-      ? 'Fichiers sauvegardés :\n' + liste.join('\n')
-      : 'Aucun fichier sauvegardé.\nUtilise Importer pour charger un fichier.';
+      ? 'Fichiers disponibles :\n' + liste.join('\n')
+      : 'Aucun fichier.\nUtilise Importer pour charger depuis ton appareil.';
     input.placeholder = 'mon_algorithme.je';
     ok.textContent    = 'Ouvrir';
     ok.onclick = () => { ouvrirFichier(input.value.trim()); fermerPopup(); };
@@ -849,12 +854,12 @@ function fermerPopup() {
 document.getElementById('overlay-fichier').addEventListener('click', e => {
   if (e.target === e.currentTarget) fermerPopup();
 });
-
 document.getElementById('popup-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('popup-ok').click();
 });
 
 // ── INIT ──
+restaurerBrouillon(); // Restaure le travail en cours au démarrage
 majTout();
 </script>
 </body>
