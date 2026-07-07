@@ -110,10 +110,14 @@ body { display: flex; flex-direction: column; height: 100vh; }
   white-space: nowrap;
 }
 
+/* Liste fichiers — scroll entre header et bouton nouveau */
 #fich-liste {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 6px 0;
+  /* Important : permet le scroll sur iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .fich-item {
@@ -127,8 +131,10 @@ body { display: flex; flex-direction: column; height: 100vh; }
   transition: background 0.1s;
 }
 .fich-item:hover { background: #2a2a2e; }
-.fich-item.actif { background: #1e3a2a; border-left: 3px solid #2d7a45; }
-
+.fich-item.actif {
+  background: #1e3a2a;
+  border-left: 3px solid #2d7a45;
+}
 .fich-nom {
   flex: 1;
   color: #ccc;
@@ -138,7 +144,6 @@ body { display: flex; flex-direction: column; height: 100vh; }
   text-overflow: ellipsis;
 }
 .fich-item.actif .fich-nom { color: #5dba7d; font-weight: bold; }
-
 .fich-sup {
   background: none;
   border: none;
@@ -149,12 +154,14 @@ body { display: flex; flex-direction: column; height: 100vh; }
   border-radius: 3px;
   flex-shrink: 0;
   line-height: 1;
+  touch-action: manipulation;
 }
 .fich-sup:hover { color: #e05555; background: #2a1a1a; }
 
+/* Bouton nouveau — toujours visible en bas, jamais caché */
 #fich-nouveau {
   margin: 6px 8px;
-  padding: 8px;
+  padding: 10px 8px;
   background: #252528;
   border: 1px dashed #444;
   border-radius: 6px;
@@ -162,10 +169,13 @@ body { display: flex; flex-direction: column; height: 100vh; }
   font-size: 12px;
   cursor: pointer;
   text-align: center;
-  flex-shrink: 0;
+  flex-shrink: 0;      /* Ne rétrécit jamais */
   white-space: nowrap;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 #fich-nouveau:hover { background: #2a2a2e; color: #aaa; }
+#fich-nouveau:active { filter: brightness(1.3); }
 
 /* ── ZONE EDITION ── */
 #zone-edition { display: flex; flex: 1; overflow: hidden; }
@@ -253,17 +263,23 @@ body { display: flex; flex-direction: column; height: 100vh; }
   border-left: 1px solid #333;
 }
 #panneau-sym.ouvert { width: 72px; }
+
+/* Défilable sur mobile — important */
 #sym-inner {
   width: 72px;
+  height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* scroll fluide iOS */
   padding: 5px 3px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .sym-btn {
   width: 100%;
-  padding: 8px 2px;
+  padding: 10px 2px;  /* plus grand pour mobile */
   border: none;
   border-radius: 5px;
   background: #2d4a7a;
@@ -273,6 +289,8 @@ body { display: flex; flex-direction: column; height: 100vh; }
   cursor: pointer;
   text-align: center;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0; /* ne rétrécit pas */
 }
 .sym-btn:active { filter: brightness(1.5); }
 
@@ -289,7 +307,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
 
 #import-input { display: none; }
 
-/* ── POPUP ── */
+/* ── POPUPS ── */
 .overlay {
   display: none;
   position: fixed;
@@ -330,6 +348,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
+  touch-action: manipulation;
 }
 .popup-btn-ok      { background: #2d7a45; }
 .popup-btn-annuler { background: #555; }
@@ -341,33 +360,42 @@ body { display: flex; flex-direction: column; height: 100vh; }
 
 <!-- TOOLBAR -->
 <div id="toolbar">
+  <!-- Bouton panneau fichiers gauche -->
   <button class="btn" id="btn-fich" onclick="toggleFichiers()">≡ Fich</button>
+  <!-- Import depuis appareil -->
   <button class="btn btn-import" onclick="importerFichier()">Importer</button>
+  <!-- Export vers appareil -->
   <button class="btn btn-export" onclick="exporterFichier()">Exporter</button>
-  <button class="btn" onclick="undo()">Undo</button>
-  <button class="btn" onclick="redo()">Redo</button>
+  <!-- Undo/Redo avec flèches -->
+  <button class="btn" onclick="undo()" title="Annuler">&#8592;</button>
+  <button class="btn" onclick="redo()" title="Rétablir">&#8594;</button>
+  <!-- TAB permanent -->
   <button class="btn btn-tab" onclick="inserer('\t',false)">TAB</button>
+  <!-- Zoom -->
   <button class="btn" onclick="zoom(1)">A+</button>
   <button class="btn" onclick="zoom(-1)">A-</button>
+  <!-- Bouton panneau symboles droite -->
   <button class="btn" id="btn-sym" onclick="toggleSymboles()">Sym ≡</button>
 </div>
 
-<!-- SUGGESTIONS -->
+<!-- SUGGESTIONS EN HAUT -->
 <div id="sugg-scroll">
   <div id="sugg-inner"></div>
 </div>
 
-<!-- MAIN -->
+<!-- ZONE PRINCIPALE -->
 <div id="main">
 
   <!-- PANNEAU FICHIERS GAUCHE -->
   <div id="panneau-fich">
     <div id="fich-header">📁 Fichiers</div>
+    <!-- Liste scrollable -->
     <div id="fich-liste"></div>
+    <!-- Nouveau fichier toujours visible en bas -->
     <div id="fich-nouveau" onclick="nouveauFichier()">+ Nouveau fichier</div>
   </div>
 
-  <!-- ZONE EDITION -->
+  <!-- EDITEUR -->
   <div id="zone-edition">
     <div id="numeros">1</div>
     <div id="editeur-wrap">
@@ -378,7 +406,7 @@ body { display: flex; flex-direction: column; height: 100vh; }
     </div>
   </div>
 
-  <!-- PANNEAU SYMBOLES DROITE -->
+  <!-- PANNEAU SYMBOLES DROITE — défilable -->
   <div id="panneau-sym">
     <div id="sym-inner"></div>
   </div>
@@ -400,10 +428,10 @@ body { display: flex; flex-direction: column; height: 100vh; }
   </div>
 </div>
 
-<!-- POPUP NOUVEAU -->
+<!-- POPUP NOUVEAU FICHIER -->
 <div class="overlay" id="overlay-nouveau">
   <div class="popup">
-    <h3>Nouveau fichier</h3>
+    <h3 id="nouveau-titre">Nouveau fichier</h3>
     <label>Nom du fichier</label>
     <input type="text" id="nouveau-input" placeholder="mon_algorithme">
     <button class="popup-btn popup-btn-ok" id="nouveau-ok">Créer</button>
@@ -413,16 +441,18 @@ body { display: flex; flex-direction: column; height: 100vh; }
 </div>
 
 <script>
-// ── SERVICE WORKER ──
+// ════════════════════════════════════════════════
+// SERVICE WORKER + AUTO UPDATE SILENCIEUX
+// ════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(reg => {
     reg.update();
     setInterval(() => { if (navigator.onLine) reg.update(); }, 30000);
     reg.addEventListener('updatefound', () => {
-      const nouveau = reg.installing;
-      nouveau.addEventListener('statechange', () => {
-        if (nouveau.state === 'installed' && navigator.serviceWorker.controller) {
-          nouveau.postMessage('SKIP_WAITING');
+      const nv = reg.installing;
+      nv.addEventListener('statechange', () => {
+        if (nv.state === 'installed' && navigator.serviceWorker.controller) {
+          nv.postMessage('SKIP_WAITING');
         }
       });
     });
@@ -433,19 +463,22 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ── ÉTAT ──
-let titreFichier   = 'sans_titre.je';
-let cheminFichier  = null;
-let zoomLevel      = 1;
-let historique     = [];
-let futur          = [];
-let ignoreChange   = false;
-let suggEvent      = null;
+// ════════════════════════════════════════════════
+// ÉTAT GLOBAL
+// ════════════════════════════════════════════════
+let titreFichier      = 'sans_titre.je';
+let cheminFichier     = null;
+let zoomLevel         = 1;
+let historique        = [];
+let futur             = [];
+let ignoreChange      = false;
+let suggEvent         = null;
 let panneauFichOuvert = false;
 let panneauSymOuvert  = false;
-let suggActifs     = [];
-let renommerAncien = null;
+let suggActifs        = [];
+let renommerAncien    = null;
 
+// Références DOM
 const editeur     = document.getElementById('editeur');
 const coloreur    = document.getElementById('coloreur');
 const numeros     = document.getElementById('numeros');
@@ -460,7 +493,11 @@ const importInput = document.getElementById('import-input');
 const btnFich     = document.getElementById('btn-fich');
 const btnSym      = document.getElementById('btn-sym');
 
-// ── BROUILLON ──
+// ════════════════════════════════════════════════
+// BROUILLON AUTOMATIQUE
+// Sauvegarde à chaque frappe, restaure au rechargement
+// Le travail n'est JAMAIS perdu
+// ════════════════════════════════════════════════
 const CLE_BROUILLON = 'jealgo_brouillon_texte';
 const CLE_TITRE     = 'jealgo_brouillon_titre';
 const CLE_CHEMIN    = 'jealgo_brouillon_chemin';
@@ -482,27 +519,60 @@ function restaurerBrouillon() {
   }
 }
 
-setInterval(sauvegarderBrouillon, 2000);
+// Sauvegarde périodique toutes les 3 secondes
+setInterval(sauvegarderBrouillon, 3000);
+// Sauvegarde avant fermeture
 window.addEventListener('beforeunload', sauvegarderBrouillon);
 
-// ── COLORATION ──
+// ════════════════════════════════════════════════
+// COLORATION SYNTAXIQUE
+// Règles appliquées dans l'ordre — les premières
+// ont priorité sur les suivantes
+// ════════════════════════════════════════════════
 const REGLES = [
-  { re: /(#[^\n]*)/g,                                                     cls:'c-comment' },
-  { re: /("(?:[^"\\]|\\.)*")/g,                                           cls:'c-string'  },
-  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,                             cls:'c-kw1'     },
-  { re: /\b(Variables?|Constantes?)\b/gi,                                 cls:'c-type'    },
-  { re: /\b(Fin\s+Si|Fin\s+Pour|Fin\s+Tant\s+que|Fin\s+Cas|Si|Sinon|Alors|Cas|Vaut|Pour|Faire|Tant\s+que|Repeter|Répeter|Jusqu|Tableau)\b/gi, cls:'c-kw2' },
-  { re: /\b(Ecrire|Écrire|Lire|entiers?|réels?|reels?|booléens?|booleans?|caractères?|caracteres?|chaine\s+de\s+caractères?)\b/gi, cls:'c-builtin' },
-  { re: /\b(Retourne)\b/gi,                                               cls:'c-func'    },
-  { re: /\b(Fonction|Procedure)\b/gi,                                     cls:'c-type'    },
-  { re: /\b(vrai|faux)\b/gi,                                              cls:'c-bool'    },
-  { re: /\b(mod|div|et|ou|non)\b/gi,                                      cls:'c-op'      },
-  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,                         cls:'c-op'      },
-  { re: /\b(\d+(?:\.\d+)?)\b/g,                                           cls:'c-number'  },
+  // Commentaires — priorité max
+  { re: /(#[^\n]*)/g,
+    cls: 'c-comment' },
+  // Chaînes entre guillemets
+  { re: /("(?:[^"\\]|\\.)*")/g,
+    cls: 'c-string' },
+  // Mots-clés structure : Algorithme Debut Fin
+  { re: /\b(Algorithme|Debut|Début|Fin)\b/gi,
+    cls: 'c-kw1' },
+  // Types : Variables Constantes
+  { re: /\b(Variables?|Constantes?)\b/gi,
+    cls: 'c-type' },
+  // Mots-clés contrôle : Si Pour Tant que etc
+  { re: /\b(Fin\s+Si|Fin\s+Pour|Fin\s+Tant\s+que|Fin\s+Cas|Si|Sinon|Alors|Cas|Vaut|Pour|Faire|Tant\s+que|Repeter|Répeter|Jusqu|Tableau)\b/gi,
+    cls: 'c-kw2' },
+  // Fonctions built-in : Ecrire Lire entier reel etc
+  { re: /\b(Ecrire|Écrire|Lire|entiers?|réels?|reels?|booléens?|booleans?|caractères?|caracteres?|chaine\s+de\s+caractères?)\b/gi,
+    cls: 'c-builtin' },
+  // Retourne
+  { re: /\b(Retourne)\b/gi,
+    cls: 'c-func' },
+  // Fonction Procedure
+  { re: /\b(Fonction|Procedure)\b/gi,
+    cls: 'c-type' },
+  // Booléens
+  { re: /\b(vrai|faux)\b/gi,
+    cls: 'c-bool' },
+  // Opérateurs texte
+  { re: /\b(mod|div|et|ou|non)\b/gi,
+    cls: 'c-op' },
+  // Opérateurs symboles
+  { re: /(<--|<-|<=|>=|<>|==|!=|[+\-*\/^<>=])/g,
+    cls: 'c-op' },
+  // Nombres
+  { re: /\b(\d+(?:\.\d+)?)\b/g,
+    cls: 'c-number' },
 ];
 
 function escHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return t
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function colorier(txt) {
@@ -512,19 +582,24 @@ function colorier(txt) {
       const next = [];
       for (const s of segs) {
         if (s.ok) { next.push(s); continue; }
-        let last = 0; re.lastIndex = 0; let m;
+        let last = 0;
+        re.lastIndex = 0;
+        let m;
         while ((m = re.exec(s.t)) !== null) {
-          if (m.index > last) next.push({ t: s.t.slice(last, m.index), ok: false });
+          if (m.index > last)
+            next.push({ t: s.t.slice(last, m.index), ok: false });
           next.push({ t: m[0], ok: true, cls });
           last = re.lastIndex;
         }
-        if (last < s.t.length) next.push({ t: s.t.slice(last), ok: false });
+        if (last < s.t.length)
+          next.push({ t: s.t.slice(last), ok: false });
       }
       segs = next;
     }
     return segs.map(s =>
-      s.ok ? `<span class="${s.cls}">${escHtml(s.t)}</span>`
-           : `<span class="c-default">${escHtml(s.t)}</span>`
+      s.ok
+        ? `<span class="${s.cls}">${escHtml(s.t)}</span>`
+        : `<span class="c-default">${escHtml(s.t)}</span>`
     ).join('');
   }).join('\n');
 }
@@ -535,13 +610,16 @@ function majColoreur() {
   coloreur.scrollLeft = editeur.scrollLeft;
 }
 
+// Synchroniser scroll coloreur et numéros avec éditeur
 editeur.addEventListener('scroll', () => {
   coloreur.scrollTop  = editeur.scrollTop;
   coloreur.scrollLeft = editeur.scrollLeft;
   numeros.scrollTop   = editeur.scrollTop;
 });
 
-// ── MOTS CLÉS ──
+// ════════════════════════════════════════════════
+// MOTS CLÉS ET AUTO-COMPLÉTION
+// ════════════════════════════════════════════════
 const MOTS_CLES = [
   'Algorithme','Debut','Début','Fin','Variable','Variables',
   'Constante','Constantes','Si','Sinon','Alors','Fin Si',
@@ -552,46 +630,52 @@ const MOTS_CLES = [
   'chaine de caracteres','vrai','faux','mod','div','et','ou','non'
 ];
 
+// Templates — préfixe exact déclenche le template
 const AUTO_COMPLETE = {
-  'ecrire':  { texte:'Ecrire("")',                           offset:2  },
-  'lire':    { texte:'Lire()',                                offset:1  },
-  'algo':    { texte:'Algorithme \nDebut\n\nFin',             offset:15 },
-  'si':      { texte:'Si  Alors\n\nFin Si',                   offset:12 },
-  'pour':    { texte:"Pour  <- 1 jusqu'\nFaire\n\nFin Pour",  offset:32 },
-  'tantque': { texte:'Tant que \nFaire\n\nFin Tant que',      offset:22 },
-  'fonc':    { texte:'Fonction ():\n\nFin Fonction',          offset:10 },
-  'proc':    { texte:'Procedure ():\n\nFin Procedure',        offset:12 },
+  'ecrire':  { texte: 'Ecrire("")',                          offset: 2  },
+  'lire':    { texte: 'Lire()',                               offset: 1  },
+  'algo':    { texte: 'Algorithme \nDebut\n\nFin',            offset: 15 },
+  'si':      { texte: 'Si  Alors\n\nFin Si',                  offset: 12 },
+  'pour':    { texte: "Pour  <- 1 jusqu'\nFaire\n\nFin Pour", offset: 32 },
+  'tantque': { texte: 'Tant que \nFaire\n\nFin Tant que',     offset: 22 },
+  'fonc':    { texte: 'Fonction ():\n\nFin Fonction',         offset: 10 },
+  'proc':    { texte: 'Procedure ():\n\nFin Procedure',       offset: 12 },
 };
 
-const PAIRES = { '(':')', '"':'"', '[':']' };
+// Paires auto-fermantes au clavier
+const PAIRES = { '(': ')', '"': '"', '[': ']' };
 
-// ── SYMBOLES ──
+// ════════════════════════════════════════════════
+// SYMBOLES DU PANNEAU DROIT
+// Défilables sur mobile grâce à overflow-y:auto
+// ════════════════════════════════════════════════
 const SYMBOLES = [
-  {label:'<-',  val:'<-',    paire:false},
-  {label:'<--', val:'<--',   paire:false},
-  {label:'()',  val:'(',     paire:true },
-  {label:'""',  val:'"',     paire:true },
-  {label:'[]',  val:'[',     paire:true },
-  {label:'<',   val:'<',     paire:false},
-  {label:'>',   val:'>',     paire:false},
-  {label:'<=',  val:'<=',    paire:false},
-  {label:'>=',  val:'>=',    paire:false},
-  {label:'==',  val:'==',    paire:false},
-  {label:'!=',  val:'!=',    paire:false},
-  {label:'mod', val:' mod ', paire:false},
-  {label:'div', val:' div ', paire:false},
-  {label:'et',  val:' et ',  paire:false},
-  {label:'ou',  val:' ou ',  paire:false},
-  {label:'non', val:'non ',  paire:false},
-  {label:':',   val:':',     paire:false},
-  {label:',',   val:',',     paire:false},
-  {label:';',   val:';',     paire:false},
-  {label:'+',   val:'+',     paire:false},
-  {label:'-',   val:'-',     paire:false},
-  {label:'*',   val:'*',     paire:false},
-  {label:'/',   val:'/',     paire:false},
+  { label: '<-',  val: '<-',    paire: false },
+  { label: '<--', val: '<--',   paire: false },
+  { label: '()',  val: '(',     paire: true  },
+  { label: '""',  val: '"',     paire: true  },
+  { label: '[]',  val: '[',     paire: true  },
+  { label: '<',   val: '<',     paire: false },
+  { label: '>',   val: '>',     paire: false },
+  { label: '<=',  val: '<=',    paire: false },
+  { label: '>=',  val: '>=',    paire: false },
+  { label: '==',  val: '==',    paire: false },
+  { label: '!=',  val: '!=',    paire: false },
+  { label: 'mod', val: ' mod ', paire: false },
+  { label: 'div', val: ' div ', paire: false },
+  { label: 'et',  val: ' et ',  paire: false },
+  { label: 'ou',  val: ' ou ',  paire: false },
+  { label: 'non', val: 'non ',  paire: false },
+  { label: ':',   val: ':',     paire: false },
+  { label: ',',   val: ',',     paire: false },
+  { label: ';',   val: ';',     paire: false },
+  { label: '+',   val: '+',     paire: false },
+  { label: '-',   val: '-',     paire: false },
+  { label: '*',   val: '*',     paire: false },
+  { label: '/',   val: '/',     paire: false },
 ];
 
+// Construire les boutons symboles
 SYMBOLES.forEach(s => {
   const b = document.createElement('button');
   b.className = 'sym-btn';
@@ -600,7 +684,9 @@ SYMBOLES.forEach(s => {
   symInner.appendChild(b);
 });
 
-// ── PANNEAUX ──
+// ════════════════════════════════════════════════
+// PANNEAUX GAUCHE ET DROITE
+// ════════════════════════════════════════════════
 function toggleFichiers() {
   panneauFichOuvert = !panneauFichOuvert;
   panneauFich.classList.toggle('ouvert', panneauFichOuvert);
@@ -613,13 +699,16 @@ function toggleSymboles() {
   btnSym.classList.toggle('btn-actif', panneauSymOuvert);
 }
 
-// ── ZOOM ──
+// ════════════════════════════════════════════════
+// ZOOM GLOBAL — affecte toute l'interface
+// ════════════════════════════════════════════════
 function zoom(dir) {
   zoomLevel = Math.min(Math.max(zoomLevel + dir * 0.15, 0.5), 3);
   document.documentElement.style.setProperty('--zoom', zoomLevel);
   majColoreur();
 }
 
+// Pinch-to-zoom sur mobile
 let touches = [], distInit = null;
 document.addEventListener('touchstart', e => {
   touches = Array.from(e.touches);
@@ -628,30 +717,33 @@ document.addEventListener('touchstart', e => {
     const dy = touches[0].clientY - touches[1].clientY;
     distInit = Math.sqrt(dx*dx + dy*dy);
   }
-}, {passive:true});
+}, { passive: true });
 document.addEventListener('touchmove', e => {
   if (e.touches.length === 2 && distInit) {
     const t = Array.from(e.touches);
     const dx = t[0].clientX - t[1].clientX;
     const dy = t[0].clientY - t[1].clientY;
     const d = Math.sqrt(dx*dx + dy*dy);
-    if (d/distInit > 1.08)      { zoom(1);  distInit = d; }
-    else if (d/distInit < 0.92) { zoom(-1); distInit = d; }
+    if (d / distInit > 1.08)      { zoom(1);  distInit = d; }
+    else if (d / distInit < 0.92) { zoom(-1); distInit = d; }
   }
-}, {passive:true});
-document.addEventListener('touchend', () => { distInit = null; }, {passive:true});
+}, { passive: true });
+document.addEventListener('touchend', () => { distInit = null; }, { passive: true });
 
-// ── INSERTION ──
+// ════════════════════════════════════════════════
+// INSERTION DE TEXTE À LA POSITION DU CURSEUR
+// ════════════════════════════════════════════════
 function inserer(texte, estPaire) {
   const s   = editeur.selectionStart;
   const e2  = editeur.selectionEnd;
   const txt = editeur.value;
   let nouveau, curseur;
   if (estPaire && PAIRES[texte]) {
-    nouveau = txt.slice(0,s) + texte + PAIRES[texte] + txt.slice(e2);
+    // Insérer paire et placer curseur entre les deux
+    nouveau = txt.slice(0, s) + texte + PAIRES[texte] + txt.slice(e2);
     curseur = s + 1;
   } else {
-    nouveau = txt.slice(0,s) + texte + txt.slice(e2);
+    nouveau = txt.slice(0, s) + texte + txt.slice(e2);
     curseur = s + texte.length;
   }
   sauverHist();
@@ -661,12 +753,16 @@ function inserer(texte, estPaire) {
   majTout();
 }
 
-// ── CLAVIER ──
+// ════════════════════════════════════════════════
+// GESTION CLAVIER
+// ════════════════════════════════════════════════
 editeur.addEventListener('keydown', e => {
-  if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undo(); return; }
-  if ((e.ctrlKey||e.metaKey) && e.key==='y') { e.preventDefault(); redo(); return; }
-  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); sauverFichierActuel(); return; }
+  // Raccourcis clavier
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); sauverFichierActuel(); return; }
 
+  // Tab — accepte la première suggestion ou insère tabulation
   if (e.key === 'Tab') {
     e.preventDefault();
     if (suggActifs.length > 0) {
@@ -679,6 +775,7 @@ editeur.addEventListener('keydown', e => {
     return;
   }
 
+  // Échap — ferme les suggestions
   if (e.key === 'Escape') {
     suggInner.innerHTML = '';
     suggScroll.classList.remove('visible');
@@ -686,6 +783,7 @@ editeur.addEventListener('keydown', e => {
     return;
   }
 
+  // Auto-fermeture des paires au clavier
   if (PAIRES[e.key]) {
     e.preventDefault();
     inserer(e.key, true);
@@ -693,11 +791,14 @@ editeur.addEventListener('keydown', e => {
   }
 });
 
-// ── GESTION TEXTE ──
+// ════════════════════════════════════════════════
+// ÉVÉNEMENTS ÉDITEUR
+// ════════════════════════════════════════════════
 editeur.addEventListener('input', () => {
   if (ignoreChange) return;
   sauverHist();
   majTout();
+  // Délai court pour ne pas bloquer la frappe
   clearTimeout(suggEvent);
   suggEvent = setTimeout(majSuggestions, 200);
 });
@@ -705,6 +806,7 @@ editeur.addEventListener('input', () => {
 editeur.addEventListener('keyup', majStatut);
 editeur.addEventListener('click', () => {
   majStatut();
+  // Fermer suggestions au clic dans l'éditeur
   suggInner.innerHTML = '';
   suggScroll.classList.remove('visible');
   suggActifs = [];
@@ -712,7 +814,7 @@ editeur.addEventListener('click', () => {
 
 function sauverHist() {
   const txt = editeur.value;
-  if (!historique.length || historique[historique.length-1] !== txt) {
+  if (!historique.length || historique[historique.length - 1] !== txt) {
     historique.push(txt);
     if (historique.length > 100) historique.shift();
     futur = [];
@@ -724,25 +826,27 @@ function majTout() {
   majStatut();
   majColoreur();
   sauvegarderBrouillon();
-  // Sauvegarde automatique dans la liste
+  // Sauvegarde automatique si fichier ouvert
   if (cheminFichier) sauverFichierSilencieux(cheminFichier);
 }
 
 function majNumeros() {
-  const n = (editeur.value.match(/\n/g)||[]).length + 1;
-  numeros.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+  const n = (editeur.value.match(/\n/g) || []).length + 1;
+  numeros.textContent = Array.from({ length: n }, (_, i) => i + 1).join('\n');
   numeros.scrollTop = editeur.scrollTop;
 }
 
 function majStatut() {
   const pos   = editeur.selectionStart;
   const avant = editeur.value.slice(0, pos);
-  const ln    = (avant.match(/\n/g)||[]).length + 1;
+  const ln    = (avant.match(/\n/g) || []).length + 1;
   const col   = avant.length - (avant.lastIndexOf('\n') + 1) + 1;
   statut.textContent = `${titreFichier}  |  Ln: ${ln}, Col: ${col}`;
 }
 
-// ── UNDO / REDO ──
+// ════════════════════════════════════════════════
+// UNDO / REDO
+// ════════════════════════════════════════════════
 function undo() {
   if (!historique.length) return;
   futur.push(editeur.value);
@@ -761,7 +865,11 @@ function redo() {
   majTout();
 }
 
-// ── SUGGESTIONS ──
+// ════════════════════════════════════════════════
+// SUGGESTIONS INTELLIGENTES
+// Mots-clés en bleu, variables du fichier en vert
+// Templates en orange avec TAB pour accepter
+// ════════════════════════════════════════════════
 function majSuggestions() {
   const pos     = editeur.selectionStart;
   const avant   = editeur.value.slice(0, pos);
@@ -775,25 +883,30 @@ function majSuggestions() {
 
   const pl = prefixe.toLowerCase();
 
+  // Indicateur TAB pour accepter
   const hint = document.createElement('span');
   hint.className = 'sugg-tab-hint';
   hint.textContent = 'TAB=OK';
 
+  // Template si préfixe exact
   if (AUTO_COMPLETE[pl]) {
     const { texte, offset } = AUTO_COMPLETE[pl];
     const b = document.createElement('button');
     b.className = 'sugg-btn';
     b.style.background = '#8a2a10';
-    b.textContent = '▶ ' + texte.replace(/\n/g,' ').slice(0,22);
+    b.textContent = '▶ ' + texte.replace(/\n/g, ' ').slice(0, 22);
     b.addEventListener('click', () => completerTemplate(texte, offset));
-    suggActifs.push({ template:true, texte, offset });
+    suggActifs.push({ template: true, texte, offset });
     suggInner.appendChild(hint);
     suggInner.appendChild(b);
   }
 
+  // Mots-clés correspondants
   const cles = MOTS_CLES.filter(mk =>
     mk.toLowerCase().startsWith(pl) && mk.toLowerCase() !== pl
   );
+
+  // Mots du fichier courant
   const vus = new Set(cles.map(mk => mk.toLowerCase()));
   const fichiermots = [];
   const re2 = /[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_]*/g;
@@ -808,22 +921,22 @@ function majSuggestions() {
     }
   }
 
-  const tous = [...cles.slice(0,5), ...fichiermots.slice(0,3)];
+  const tous = [...cles.slice(0, 5), ...fichiermots.slice(0, 3)];
   if (!tous.length && !suggActifs.length) return;
 
   if (!suggActifs.length) {
     suggInner.appendChild(hint);
-    if (tous.length) suggActifs.push({ template:false, mot: tous[0] });
+    if (tous.length) suggActifs.push({ template: false, mot: tous[0] });
   }
 
-  tous.slice(0,7).forEach((mot, idx) => {
+  tous.slice(0, 7).forEach((mot, idx) => {
     const b = document.createElement('button');
     b.className = 'sugg-btn';
     b.style.background = MOTS_CLES.includes(mot) ? '#1e4fa0' : '#1e6b35';
     b.textContent = mot;
     b.addEventListener('click', () => completer(mot));
-    if (idx === 0 && !AUTO_COMPLETE[pl]) suggActifs[0] = { template:false, mot };
-    else suggActifs.push({ template:false, mot });
+    if (idx === 0 && !AUTO_COMPLETE[pl]) suggActifs[0] = { template: false, mot };
+    else suggActifs.push({ template: false, mot });
     suggInner.appendChild(b);
   });
 
@@ -837,7 +950,7 @@ function completer(mot) {
   const prefixe = m ? m[0] : '';
   const debut   = pos - prefixe.length;
   ignoreChange  = true;
-  editeur.value = editeur.value.slice(0,debut) + mot + editeur.value.slice(pos);
+  editeur.value = editeur.value.slice(0, debut) + mot + editeur.value.slice(pos);
   ignoreChange  = false;
   editeur.setSelectionRange(debut + mot.length, debut + mot.length);
   editeur.focus();
@@ -854,7 +967,7 @@ function completerTemplate(texte, offset) {
   const prefixe = m ? m[0] : '';
   const debut   = pos - prefixe.length;
   ignoreChange  = true;
-  editeur.value = editeur.value.slice(0,debut) + texte + editeur.value.slice(pos);
+  editeur.value = editeur.value.slice(0, debut) + texte + editeur.value.slice(pos);
   ignoreChange  = false;
   const nc = debut + texte.length - offset;
   editeur.setSelectionRange(nc, nc);
@@ -865,7 +978,10 @@ function completerTemplate(texte, offset) {
   majTout();
 }
 
-// ── FICHIERS ──
+// ════════════════════════════════════════════════
+// GESTION DES FICHIERS
+// Stockage dans localStorage — survit aux rechargements
+// ════════════════════════════════════════════════
 function getListe() {
   return JSON.parse(localStorage.getItem('jealgo_liste') || '[]');
 }
@@ -873,13 +989,14 @@ function setListe(l) {
   localStorage.setItem('jealgo_liste', JSON.stringify(l));
 }
 
+// Rafraîchir le panneau fichiers
 function majPanneauFichiers() {
   fichListe.innerHTML = '';
   const liste = getListe();
   if (!liste.length) {
     const vide = document.createElement('div');
-    vide.style.cssText = 'color:#555;font-size:11px;padding:12px 10px;text-align:center;';
-    vide.textContent = 'Aucun fichier';
+    vide.style.cssText = 'color:#555;font-size:11px;padding:16px 10px;text-align:center;line-height:1.6;';
+    vide.textContent = 'Aucun fichier\nUtilise + Nouveau';
     fichListe.appendChild(vide);
     return;
   }
@@ -890,14 +1007,14 @@ function majPanneauFichiers() {
     const nomEl = document.createElement('span');
     nomEl.className = 'fich-nom';
     nomEl.textContent = nom;
-    nomEl.title = 'Clic: ouvrir | Double-clic: renommer';
-    nomEl.addEventListener('click', () => ouvrirFichier(nom));
+    nomEl.title = 'Clic: ouvrir  |  Double-clic: renommer';
+    nomEl.addEventListener('click',    () => ouvrirFichier(nom));
     nomEl.addEventListener('dblclick', () => demanderRenommer(nom));
 
     const sup = document.createElement('button');
-    sup.className = 'fich-sup';
+    sup.className   = 'fich-sup';
     sup.textContent = '🗑';
-    sup.title = 'Supprimer';
+    sup.title       = 'Supprimer ce fichier';
     sup.addEventListener('click', e => {
       e.stopPropagation();
       supprimerFichier(nom);
@@ -909,20 +1026,25 @@ function majPanneauFichiers() {
   });
 }
 
+// Sauvegarde silencieuse — sans message
 function sauverFichierSilencieux(nom) {
   if (!nom) return;
   localStorage.setItem('jealgo_' + nom, editeur.value);
   const liste = getListe();
-  if (!liste.includes(nom)) { liste.push(nom); setListe(liste); majPanneauFichiers(); }
+  if (!liste.includes(nom)) {
+    liste.push(nom);
+    setListe(liste);
+    majPanneauFichiers();
+  }
 }
 
+// Sauvegarde avec confirmation dans la barre statut
 function sauverFichierActuel() {
   if (!cheminFichier) {
-    // Demander le nom
     ouvrirPopupNouveau(true);
   } else {
     sauverFichierSilencieux(cheminFichier);
-    statut.textContent = '✓ ' + cheminFichier + '  |  sauvegardé';
+    statut.textContent = '✓ Sauvegardé : ' + cheminFichier;
     setTimeout(majStatut, 1500);
   }
 }
@@ -934,16 +1056,18 @@ function ouvrirFichier(nom) {
   editeur.value = contenu;
   titreFichier  = nom;
   cheminFichier = nom;
-  historique = []; futur = [];
+  historique = [];
+  futur      = [];
   majTout();
   majPanneauFichiers();
 }
 
 function supprimerFichier(nom) {
-  if (!confirm('Supprimer ' + nom + ' ?')) return;
+  if (!confirm('Supprimer définitivement ' + nom + ' ?')) return;
   localStorage.removeItem('jealgo_' + nom);
   const liste = getListe().filter(n => n !== nom);
   setListe(liste);
+  // Si c'est le fichier actuel, réinitialiser
   if (cheminFichier === nom) {
     editeur.value = '';
     titreFichier  = 'sans_titre.je';
@@ -959,7 +1083,7 @@ function supprimerFichier(nom) {
 function demanderRenommer(nom) {
   renommerAncien = nom;
   const input = document.getElementById('renommer-input');
-  input.value = nom.replace('.je','');
+  input.value = nom.replace('.je', '');
   document.getElementById('overlay-renommer').classList.add('visible');
   setTimeout(() => input.focus(), 100);
 }
@@ -969,7 +1093,7 @@ document.getElementById('renommer-ok').addEventListener('click', () => {
   if (!nouveau) return;
   if (!nouveau.endsWith('.je')) nouveau += '.je';
   if (nouveau === renommerAncien) { fermerPopup('overlay-renommer'); return; }
-  const contenu = localStorage.getItem('jealgo_' + renommerAncien);
+  const contenu = localStorage.getItem('jealgo_' + renommerAncien) || '';
   localStorage.setItem('jealgo_' + nouveau, contenu);
   localStorage.removeItem('jealgo_' + renommerAncien);
   const liste = getListe().map(n => n === renommerAncien ? nouveau : n);
@@ -984,24 +1108,30 @@ document.getElementById('renommer-ok').addEventListener('click', () => {
   majStatut();
 });
 
+// Nouveau fichier ou sauvegarder sous
 function nouveauFichier() { ouvrirPopupNouveau(false); }
 
 function ouvrirPopupNouveau(estSauvegarde) {
-  const input = document.getElementById('nouveau-input');
-  const ok    = document.getElementById('nouveau-ok');
-  input.value = '';
-  input.placeholder = estSauvegarde ? titreFichier.replace('.je','') : 'mon_algorithme';
+  const input  = document.getElementById('nouveau-input');
+  const ok     = document.getElementById('nouveau-ok');
+  const titre  = document.getElementById('nouveau-titre');
+  input.value       = '';
+  titre.textContent = estSauvegarde ? 'Enregistrer sous' : 'Nouveau fichier';
+  input.placeholder = estSauvegarde
+    ? titreFichier.replace('.je', '')
+    : 'mon_algorithme';
   ok.textContent = estSauvegarde ? 'Enregistrer' : 'Créer';
   ok.onclick = () => {
     let nom = input.value.trim() || (estSauvegarde ? titreFichier : 'sans_titre');
     if (!nom.endsWith('.je')) nom += '.je';
     if (!estSauvegarde) {
-      // Nouveau fichier vide
       if (editeur.value && !confirm('Créer un nouveau fichier ? Le travail actuel sera perdu.')) {
-        fermerPopup('overlay-nouveau'); return;
+        fermerPopup('overlay-nouveau');
+        return;
       }
       editeur.value = '';
-      historique = []; futur = [];
+      historique = [];
+      futur      = [];
     }
     localStorage.setItem('jealgo_' + nom, editeur.value);
     const liste = getListe();
@@ -1017,7 +1147,11 @@ function ouvrirPopupNouveau(estSauvegarde) {
   setTimeout(() => input.focus(), 100);
 }
 
-// ── IMPORT / EXPORT ──
+// ════════════════════════════════════════════════
+// IMPORT / EXPORT
+// Import = charger depuis l'appareil
+// Export = télécharger sur l'appareil
+// ════════════════════════════════════════════════
 function importerFichier() { importInput.click(); }
 
 importInput.addEventListener('change', e => {
@@ -1030,7 +1164,8 @@ importInput.addEventListener('change', e => {
     if (!nom.endsWith('.je')) nom = nom.split('.')[0] + '.je';
     titreFichier  = nom;
     cheminFichier = nom;
-    historique = []; futur = [];
+    historique = [];
+    futur      = [];
     sauverFichierSilencieux(nom);
     majTout();
     majPanneauFichiers();
@@ -1044,11 +1179,15 @@ function exporterFichier() {
   const blob = new Blob([editeur.value], { type: 'text/plain' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href = url; a.download = nom; a.click();
+  a.href     = url;
+  a.download = nom;
+  a.click();
   URL.revokeObjectURL(url);
 }
 
-// ── POPUP ──
+// ════════════════════════════════════════════════
+// POPUPS
+// ════════════════════════════════════════════════
 function fermerPopup(id) {
   document.getElementById(id).classList.remove('visible');
 }
@@ -1066,8 +1205,10 @@ document.getElementById('nouveau-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('nouveau-ok').click();
 });
 
-// ── INIT ──
-restaurerBrouillon();
+// ════════════════════════════════════════════════
+// INITIALISATION
+// ════════════════════════════════════════════════
+restaurerBrouillon(); // Restaure le travail au rechargement
 majTout();
 majPanneauFichiers();
 </script>
